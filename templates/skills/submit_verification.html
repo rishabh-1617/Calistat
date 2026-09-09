@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-lg mx-auto bg-card border border-border rounded-xl p-6">
+    <h1 class="text-xl font-bold mb-1">Verify: {{ skill.name }}</h1>
+    <p class="text-sm text-gray-500 mb-4">Submitting does not auto-verify your skill — a moderator reviews every video.</p>
+
+    {% if requirement %}
+    <div class="bg-bg border border-border rounded-lg p-4 mb-4 text-sm text-gray-300">
+        <h3 class="font-semibold mb-1">Your video must show:</h3>
+        <p>{{ requirement.instructions }}</p>
+        {% if requirement.requires_strict_review %}<p class="text-gold mt-2 text-xs">⚠ This skill requires stricter review.</p>{% endif %}
+    </div>
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="video" accept="video/*" required class="w-full text-sm mb-4">
+        <button class="w-full bg-accent py-2 rounded-lg font-semibold">Submit for Review</button>
+    </form>
+</div>
+{% endblock %}

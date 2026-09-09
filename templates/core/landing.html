@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Calisfy — Master Your Body{% endblock %}
+{% block content %}
+<section class="text-center py-16">
+    <h1 class="text-4xl md:text-6xl font-black leading-tight">Master Your Body.<br><span class="text-accent">Build Your Athlete Identity.</span></h1>
+    <p class="mt-6 text-gray-400 max-w-xl mx-auto">Learn calisthenics skills, follow structured training, track your progression, prove your achievements, and connect with athletes around the world.</p>
+    <div class="mt-8 flex justify-center gap-4">
+        <a href="{% url 'accounts:signup' %}" class="bg-accent px-6 py-3 rounded-lg font-semibold hover:opacity-90">Start Training</a>
+        <a href="{% url 'skills:skill_list' %}" class="border border-border px-6 py-3 rounded-lg font-semibold hover:bg-card">Explore Skills</a>
+    </div>
+</section>
+
+<section class="grid grid-cols-3 md:grid-cols-6 gap-2 text-center text-xs md:text-sm text-gray-400 py-8 border-y border-border">
+    <div class="p-3">LEARN</div>
+    <div class="p-3">TRAIN</div>
+    <div class="p-3">PROGRESS</div>
+    <div class="p-3">VERIFY</div>
+    <div class="p-3">RANK</div>
+    <div class="p-3">CONNECT</div>
+</section>
+
+<section class="py-12 text-center">
+    <h2 class="text-2xl font-bold mb-2">Skill Progression, Not Guesswork</h2>
+    <p class="text-gray-400 mb-6">Every skill has a structured path.</p>
+    <div class="flex flex-wrap justify-center gap-3 text-sm font-medium">
+        <span class="bg-card border border-border px-4 py-2 rounded-full">Pull-up</span>
+        <span class="text-gray-500">→</span>
+        <span class="bg-card border border-border px-4 py-2 rounded-full">Chest-to-bar</span>
+        <span class="text-gray-500">→</span>
+        <span class="bg-card border border-border px-4 py-2 rounded-full">Explosive Pull-up</span>
+        <span class="text-gray-500">→</span>
+        <span class="bg-card border border-gold text-gold px-4 py-2 rounded-full">Muscle-up</span>
+    </div>
+</section>
+
+<section class="py-12 text-center">
+    <h2 class="text-2xl font-bold mb-4">Start Your Calisthenics Journey</h2>
+    <a href="{% url 'accounts:signup' %}" class="bg-accent px-8 py-3 rounded-lg font-semibold hover:opacity-90 inline-block">Create Free Account</a>
+</section>
+{% endblock %}

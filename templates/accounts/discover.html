@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-xl font-bold mb-4">Discover Athletes</h1>
+<div class="grid md:grid-cols-3 gap-4">
+    {% for p in profiles %}
+    <a href="{% url 'accounts:profile_detail' p.user.username %}" class="bg-card border border-border rounded-xl p-4 hover:border-accent">
+        <div class="font-semibold">{{ p.display_name|default:p.user.username }}</div>
+        <div class="text-xs text-gray-500">@{{ p.user.username }}</div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load skill_extras %}
+{% block title %}Skills — Calisfy{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Skill Tree</h1>
+{% for cat in categories %}
+<div class="mb-6">
+    <h2 class="text-sm font-bold uppercase tracking-wide text-gray-500 mb-2">{{ cat.name }}</h2>
+    <div class="grid md:grid-cols-3 gap-3">
+        {% for skill in cat.skills.all %}
+        <a href="{% url 'skills:skill_detail' skill.slug %}" class="bg-card border border-border rounded-lg p-4 hover:border-accent flex justify-between items-center">
+            <div>
+                <div class="font-semibold">{{ skill.name }}</div>
+                <div class="text-xs text-gray-500">{{ skill.get_difficulty_level_display }} · Diff {{ skill.difficulty_score }}</div>
+            </div>
+            <span class="text-lg">
+                {% with st=user_status|get_item:skill.id %}
+                    {% if st == "verified" %}✓
+                    {% elif st == "verification_pending" %}◑
+                    {% elif st == "self_recorded" %}◐
+                    {% elif st == "learning" %}◌
+                    {% else %}○{% endif %}
+                {% endwith %}
+            </span>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

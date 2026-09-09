@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}@{{ profile_user.username }} — Calisfy{% endblock %}
+{% block content %}
+<div class="bg-card border border-border rounded-xl p-6">
+    <div class="flex items-center gap-4">
+        {% if profile.avatar %}
+            <img src="{{ profile.avatar.url }}" class="w-20 h-20 rounded-full object-cover border-2 border-gold">
+        {% else %}
+            <div class="w-20 h-20 rounded-full bg-border flex items-center justify-center text-2xl font-bold">{{ profile_user.username|first|upper }}</div>
+        {% endif %}
+        <div>
+            <h1 class="text-xl font-bold">{{ profile.display_name|default:profile_user.username }}</h1>
+            <p class="text-gray-500">@{{ profile_user.username }}</p>
+            <span class="text-gold text-sm font-bold uppercase">{{ user_rank.current_rank.name|default:"Unranked" }} · {{ user_rank.cached_xp }} XP</span>
+        </div>
+        {% if user.is_authenticated and user != profile_user %}
+        <form method="post" action="{% url 'accounts:toggle_follow' profile_user.username %}" class="ml-auto">
+            {% csrf_token %}
+            <button class="{% if is_following %}bg-border{% else %}bg-accent{% endif %} px-4 py-2 rounded-lg text-sm font-semibold">
+                {% if is_following %}Following{% else %}Follow{% endif %}
+            </button>
+        </form>
+        {% elif user == profile_user %}
+        <a href="{% url 'accounts:edit_profile' %}" class="ml-auto border border-border px-4 py-2 rounded-lg text-sm">Edit Profile</a>
+        {% endif %}
+    </div>
+    {% if profile.bio %}<p class="mt-4 text-gray-300">{{ profile.bio }}</p>{% endif %}
+</div>
+
+<div class="grid grid-cols-4 gap-2 my-4 text-center">
+    <div class="bg-card border border-border rounded-lg p-3"><div class="text-lg font-bold">{{ workout_count }}</div><div class="text-xs text-gray-500">Workouts</div></div>
+    <div class="bg-card border border-border rounded-lg p-3"><div class="text-lg font-bold">{{ verified_skills|length }}</div><div class="text-xs text-gray-500">Verified Skills</div></div>
+    <div class="bg-card border border-border rounded-lg p-3"><div class="text-lg font-bold">{{ profile.follower_count }}</div><div class="text-xs text-gray-500">Followers</div></div>
+    <div class="bg-card border border-border rounded-lg p-3"><div class="text-lg font-bold">{{ profile.following_count }}</div><div class="text-xs text-gray-500">Following</div></div>
+</div>
+
+<div class="bg-card border border-border rounded-xl p-5 mb-4">
+    <h2 class="font-semibold mb-3">✓ Verified Skills</h2>
+    <div class="flex flex-wrap gap-2">
+        {% for us in verified_skills %}
+            <span class="bg-bg border border-gold text-gold text-xs px-3 py-1 rounded-full">✓ {{ us.skill.name }}</span>
+        {% empty %}<p class="text-gray-500 text-sm">No verified skills yet.</p>{% endfor %}
+    </div>
+</div>
+
+<div class="bg-card border border-border rounded-xl p-5">
+    <h2 class="font-semibold mb-3">🏆 Achievements</h2>
+    <div class="flex flex-wrap gap-2">
+        {% for a in achievements %}
+            <span class="text-sm">{{ a.achievement.icon }} {{ a.achievement.name }}</span>
+        {% empty %}<p class="text-gray-500 text-sm">No achievements yet.</p>{% endfor %}
+    </div>
+</div>
+{% endblock %}

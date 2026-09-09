@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-xl font-bold mb-1">{{ workout.title }}</h1>
+<p class="text-gray-500 mb-6">{{ workout.estimated_duration_minutes }} min</p>
+<div class="space-y-3">
+    {% for we in exercises %}
+    <div class="bg-card border border-border rounded-xl p-4">
+        <div class="flex justify-between">
+            <span class="font-semibold">{{ we.exercise.name }}</span>
+            <span class="text-xs text-gray-500 uppercase">{{ we.get_section_display }}</span>
+        </div>
+        <p class="text-sm text-gray-400 mt-1">{{ we.sets }} × {{ we.reps }} · rest {{ we.rest_seconds }}s</p>
+    </div>
+    {% endfor %}
+</div>
+<form method="post" action="{% url 'training:complete_workout' workout.pk %}" class="mt-6">{% csrf_token %}
+    <button class="w-full bg-accent py-3 rounded-lg font-semibold">Mark Workout Complete</button>
+</form>
+{% endblock %}

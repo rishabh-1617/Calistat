@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-6">Training Programs</h1>
+<div class="grid md:grid-cols-2 gap-4">
+    {% for p in programs %}
+    <a href="{% url 'training:program_detail' p.pk %}" class="bg-card border border-border rounded-xl p-5 hover:border-accent">
+        <h2 class="font-semibold">{{ p.name }}</h2>
+        <p class="text-xs text-gray-500 mt-1">{{ p.duration_weeks }} weeks · {{ p.days_per_week }} days/week</p>
+        {% if p.target_skill %}<p class="text-xs text-gold mt-1">Goal: {{ p.target_skill.name }}</p>{% endif %}
+    </a>
+    {% empty %}<p class="text-gray-500">No programs yet — add some in the admin panel.</p>{% endfor %}
+</div>
+{% endblock %}

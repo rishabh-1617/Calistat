@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}{{ skill.name }} — Calisfy{% endblock %}
+{% block content %}
+<div class="bg-card border border-border rounded-xl p-6">
+    <div class="flex justify-between items-start">
+        <div>
+            <h1 class="text-2xl font-bold">{{ skill.name }}</h1>
+            <p class="text-sm text-gray-500">{{ skill.get_difficulty_level_display }} · {{ skill.category.name }}</p>
+        </div>
+        {% if user_skill %}
+        <span class="text-sm bg-bg border border-border rounded-full px-3 py-1">{{ user_skill.get_status_display }}</span>
+        {% endif %}
+    </div>
+
+    {% if skill.tutorial_video_url %}
+    <div class="mt-4 aspect-video bg-bg border border-border rounded-lg flex items-center justify-center text-gray-500 text-sm">
+        <a href="{{ skill.tutorial_video_url }}" target="_blank" class="text-accent">▶ Watch tutorial</a>
+    </div>
+    {% endif %}
+
+    <p class="mt-4 text-gray-300">{{ skill.description }}</p>
+
+    {% if prerequisites %}
+    <div class="mt-4">
+        <h3 class="font-semibold text-sm text-gray-400 mb-1">Prerequisites</h3>
+        <ul class="text-sm space-y-1">
+            {% for p in prerequisites %}<li>✓ {{ p.name }}</li>{% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    {% if progresses_to %}
+    <div class="mt-4">
+        <h3 class="font-semibold text-sm text-gray-400 mb-1">Progression</h3>
+        <div class="flex flex-wrap gap-2 text-sm">
+            {% for p in progresses_to %}<span class="bg-bg border border-border rounded-full px-3 py-1">{{ p.name }}</span>{% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% if skill.technique_instructions %}
+    <div class="mt-4">
+        <h3 class="font-semibold text-sm text-gray-400 mb-1">Technique</h3>
+        <p class="text-sm text-gray-300">{{ skill.technique_instructions }}</p>
+    </div>
+    {% endif %}
+    {% if skill.common_mistakes %}
+    <div class="mt-4">
+        <h3 class="font-semibold text-sm text-gray-400 mb-1">Common Mistakes</h3>
+        <p class="text-sm text-gray-300">{{ skill.common_mistakes }}</p>
+    </div>
+    {% endif %}
+
+    <div class="mt-6 flex gap-3">
+        {% if user.is_authenticated %}
+            {% if user_skill.status == "not_started" %}
+            <form method="post" action="{% url 'skills:start_learning' skill.slug %}">{% csrf_token %}
+                <button class="bg-accent px-6 py-2 rounded-lg font-semibold">Start Training</button>
+            </form>
+            {% elif user_skill.status != "verified" %}
+            <a href="{% url 'skills:submit_verification' skill.slug %}" class="bg-gold text-black px-6 py-2 rounded-lg font-semibold">Verify Skill</a>
+            {% else %}
+            <span class="text-gold font-semibold">✓ Verified</span>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'accounts:login' %}" class="bg-accent px-6 py-2 rounded-lg font-semibold">Log in to Start Training</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

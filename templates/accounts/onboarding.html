@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-sm mx-auto bg-card border border-border rounded-xl p-6 mt-8">
+    <h1 class="text-xl font-bold mb-2">Quick setup</h1>
+    <p class="text-sm text-gray-500 mb-4">This takes 10 seconds.</p>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">
+            <label class="text-sm text-gray-400">{{ field.label }}</label>
+            {{ field }}
+        </div>
+        {% endfor %}
+        <button class="w-full bg-accent py-2 rounded-lg font-semibold">Continue to Dashboard</button>
+    </form>
+</div>
+{% endblock %}

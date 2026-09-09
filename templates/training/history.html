@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="text-xl font-bold mb-4">Workout History</h1>
+<div class="space-y-2">
+    {% for s in sessions %}
+    <div class="bg-card border border-border rounded-lg p-3 flex justify-between text-sm">
+        <span>{{ s.workout.title }}</span>
+        <span class="text-gray-500">{{ s.started_at|date:"M d, Y" }} {% if s.is_completed %}✓{% endif %}</span>
+    </div>
+    {% empty %}<p class="text-gray-500">No workouts completed yet.</p>{% endfor %}
+</div>
+{% endblock %}

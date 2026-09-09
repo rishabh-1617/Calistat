@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — Calisfy{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold mb-1">Good to see you, {{ user.username }} 👋</h1>
+
+<div class="bg-card border border-border rounded-xl p-5 my-4">
+    <div class="flex justify-between items-center mb-2">
+        <span class="text-gold font-bold uppercase tracking-wide">{{ user_rank.current_rank.name|default:"Unranked" }}</span>
+        <span class="text-sm text-gray-400">{{ user_rank.cached_xp }} XP</span>
+    </div>
+    {% if next_rank %}
+    <div class="w-full h-2 bg-border rounded-full overflow-hidden">
+        <div class="h-full bg-accent" style="width: {% widthratio user_rank.cached_xp next_rank.min_xp 100 %}%"></div>
+    </div>
+    <p class="text-xs text-gray-500 mt-2">{{ xp_needed }} XP to {{ next_rank.name }}</p>
+    {% endif %}
+</div>
+
+<div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-card border border-border rounded-xl p-5">
+        <h2 class="font-semibold mb-3">Skills You're Learning</h2>
+        {% for us in current_skills %}
+            <a href="{% url 'skills:skill_detail' us.skill.slug %}" class="block py-2 border-b border-border last:border-0 hover:text-accent">{{ us.skill.name }}</a>
+        {% empty %}
+            <p class="text-gray-500 text-sm">No skills in progress yet. <a href="{% url 'skills:skill_list' %}" class="text-accent">Browse skills →</a></p>
+        {% endfor %}
+    </div>
+
+    <div class="bg-card border border-border rounded-xl p-5">
+        <h2 class="font-semibold mb-3">Recent Training</h2>
+        {% for s in recent_sessions %}
+            <div class="py-2 border-b border-border last:border-0 text-sm">{{ s.workout.title }} — {{ s.started_at|date:"M d" }}</div>
+        {% empty %}
+            <p class="text-gray-500 text-sm">No workouts yet. <a href="{% url 'training:program_list' %}" class="text-accent">Start training →</a></p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="mt-4 bg-card border border-border rounded-xl p-5">
+    <h2 class="font-semibold mb-3">Community</h2>
+    {% for post in community_feed %}
+        <div class="py-2 border-b border-border last:border-0 text-sm"><span class="font-semibold">@{{ post.user.username }}</span> {{ post.content|truncatewords:15 }}</div>
+    {% empty %}
+        <p class="text-gray-500 text-sm">No posts yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}
