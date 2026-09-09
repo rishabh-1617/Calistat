@@ -10,4 +10,7 @@ urlpatterns = [
     path("workout/<int:pk>/", views.workout_player, name="workout_player"),
     path("workout/<int:pk>/complete/", views.complete_workout, name="complete_workout"),
     path("history/", views.history, name="history"),
+    path("challenges/", views.challenge_list, name="challenge_list"),
+    path("challenges/<int:pk>/progress/", views.update_challenge_progress, name="update_challenge_progress"),
+    path("challenges/<int:pk>/claim/", views.claim_challenge_xp, name="claim_challenge_xp"),
 ]

@@ -1,13 +1,64 @@
 {% extends "base.html" %}
+{% block title %}Training Programs — Calisfy{% endblock %}
+
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Training Programs</h1>
-<div class="grid md:grid-cols-2 gap-4">
-    {% for p in programs %}
-    <a href="{% url 'training:program_detail' p.pk %}" class="bg-card border border-border rounded-xl p-5 hover:border-accent">
-        <h2 class="font-semibold">{{ p.name }}</h2>
-        <p class="text-xs text-gray-500 mt-1">{{ p.duration_weeks }} weeks · {{ p.days_per_week }} days/week</p>
-        {% if p.target_skill %}<p class="text-xs text-gold mt-1">Goal: {{ p.target_skill.name }}</p>{% endif %}
-    </a>
-    {% empty %}<p class="text-gray-500">No programs yet — add some in the admin panel.</p>{% endfor %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl sm:text-3xl font-black text-white font-display tracking-tight">Structured Training Programs</h1>
+                <span class="bg-accent/15 border border-accent/30 text-accent text-xs font-bold px-2.5 py-1 rounded-full">
+                    Goal-Driven
+                </span>
+            </div>
+            <p class="text-xs sm:text-sm text-gray-400 mt-1">Multi-week periodized programs designed to build the foundational tendon and muscular power for calisthenics.</p>
+        </div>
+    </div>
+
+    <!-- Programs Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        {% for p in programs %}
+            <div class="bg-card border border-border hover:border-accent/40 rounded-2xl p-5 sm:p-6 transition-all duration-200 flex flex-col justify-between group">
+                <div>
+                    <!-- Badges -->
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <span class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg bg-bg border border-border text-gray-400">
+                            {{ p.experience_level|default:"All Levels" }}
+                        </span>
+                        {% if p.target_skill %}
+                            <span class="text-[11px] font-bold px-2.5 py-1 rounded-lg bg-gold/15 text-gold border border-gold/30">
+                                🎯 {{ p.target_skill.name }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <h2 class="text-lg sm:text-xl font-bold text-white group-hover:text-accent transition leading-snug mb-2 font-display">
+                        {{ p.name }}
+                    </h2>
+
+                    <p class="text-xs sm:text-sm text-gray-400 leading-relaxed line-clamp-3 mb-4">
+                        {{ p.description|default:"Master progressive overload and bodyweight movement mechanics." }}
+                    </p>
+                </div>
+
+                <div class="pt-4 border-t border-border/80 flex items-center justify-between">
+                    <div class="text-xs text-gray-400 space-y-0.5">
+                        <div>📅 <strong class="text-gray-200">{{ p.duration_weeks }}</strong> Weeks</div>
+                        <div>⚡ <strong class="text-gray-200">{{ p.days_per_week }}</strong> Days / week</div>
+                    </div>
+
+                    <a href="{% url 'training:program_detail' p.pk %}" class="px-4 py-2 bg-white/5 group-hover:bg-accent border border-white/10 group-hover:border-accent text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5 shadow-sm">
+                        <span>View Workouts</span>
+                        <span>→</span>
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-span-full text-center py-16 px-4 bg-card/40 border border-border rounded-2xl">
+                <p class="text-sm text-gray-400">No training programs published yet.</p>
+            </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

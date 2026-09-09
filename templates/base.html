@@ -1,10 +1,17 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Calisfy{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>{% block title %}Calisfy — Calisthenics Progression & Community{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (via CDN) -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -12,10 +19,16 @@
           extend: {
             colors: {
               bg: '#0b0b0f',
-              card: '#15151c',
-              border: '#26262f',
+              card: '#13131a',
+              cardHover: '#181822',
+              border: '#23232e',
               accent: '#e63946',
+              accentHover: '#d62839',
               gold: '#d4af37',
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+              display: ['"Outfit"', 'system-ui', 'sans-serif'],
             }
           }
         }
@@ -23,45 +36,343 @@
     </script>
     <link rel="stylesheet" href="{% static 'style.css' %}">
 </head>
-<body class="bg-bg text-gray-100 min-h-screen font-sans pb-20 md:pb-0">
+<body class="bg-bg text-gray-100 min-h-screen font-sans flex flex-col selection:bg-accent selection:text-white">
 
-    <nav class="hidden md:flex items-center justify-between px-8 py-4 border-b border-border bg-card">
-        <a href="{% url 'core:landing' %}" class="text-xl font-black tracking-tight text-white">CALIS<span class="text-accent">FY</span></a>
-        <div class="flex gap-6 text-sm font-medium text-gray-300">
-            <a href="{% url 'core:dashboard' %}" class="hover:text-white">Home</a>
-            <a href="{% url 'training:program_list' %}" class="hover:text-white">Train</a>
-            <a href="{% url 'skills:skill_list' %}" class="hover:text-white">Skills</a>
-            <a href="{% url 'community:feed' %}" class="hover:text-white">Community</a>
-            <a href="{% url 'ranking:leaderboard' %}" class="hover:text-white">Leaderboard</a>
+{% if user.is_authenticated %}
+    <!-- ========================================================================= -->
+    <!-- DESKTOP LEFT SECTION (Persistent Left Navigation Sidebar)                 -->
+    <!-- ========================================================================= -->
+    <aside class="hidden lg:flex flex-col w-64 xl:w-72 fixed inset-y-0 left-0 bg-card border-r border-border z-30 select-none">
+        <!-- Brand Logo -->
+        <div class="p-6 pb-5 flex items-center justify-between border-b border-border/70">
+            <a href="{% url 'core:dashboard' %}" class="flex items-center gap-2.5 group">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-accent to-rose-600 flex items-center justify-center font-display font-black text-white text-lg shadow-lg shadow-accent/20 group-hover:scale-105 transition-transform">
+                    C
+                </div>
+                <span class="text-2xl font-black tracking-tight text-white font-display">
+                    CALIS<span class="text-accent">FY</span>
+                </span>
+            </a>
+            <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded bg-white/5 text-gray-400 border border-white/10">
+                PRO
+            </span>
         </div>
+
+        <!-- Quick Action Button -->
+        <div class="px-5 pt-5 pb-2">
+            <a href="{% url 'training:program_list' %}" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-accent to-rose-600 hover:opacity-95 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-md shadow-accent/20 transition-all transform active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                <span>Start Training</span>
+            </a>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="flex-1 px-3 py-3 space-y-1 overflow-y-auto text-sm font-medium">
+            <a href="{% url 'core:dashboard' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 hover:bg-white/5 hover:text-white {% if request.resolver_match.view_name == 'core:dashboard' %}bg-white/10 text-white font-semibold border-l-2 border-accent{% else %}text-gray-400{% endif %}">
+                <span class="text-base">⚡</span>
+                <span>Home / Dashboard</span>
+            </a>
+
+            <a href="{% url 'training:program_list' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 hover:bg-white/5 hover:text-white {% if 'training' in request.path and 'challenge' not in request.path %}bg-white/10 text-white font-semibold border-l-2 border-accent{% else %}text-gray-400{% endif %}">
+                <span class="text-base">🏋️</span>
+                <span>Workouts & Programs</span>
+            </a>
+
+            <a href="{% url 'skills:skill_list' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 hover:bg-white/5 hover:text-white {% if 'skills' in request.path %}bg-white/10 text-white font-semibold border-l-2 border-accent{% else %}text-gray-400{% endif %}">
+                <span class="text-base">🧗</span>
+                <span>Skill Tree</span>
+            </a>
+
+            <a href="{% url 'training:challenge_list' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-150 hover:bg-white/5 hover:text-white {% if 'challenge' in request.path %}bg-white/10 text-white font-semibold border-l-2 border-accent{% else %}text-gray-400{% endif %}">
+                <div class="flex items-center gap-3">
+                    <span class="text-base">🎯</span>
+                    <span>Challenges</span>
+                </div>
+                <span class="text-[10px] bg-accent/20 text-accent font-bold px-1.5 py-0.5 rounded-md">Bounties</span>
+            </a>
+
+            <a href="{% url 'ranking:leaderboard' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 hover:bg-white/5 hover:text-white {% if request.resolver_match.view_name == 'ranking:leaderboard' %}bg-white/10 text-white font-semibold border-l-2 border-accent{% else %}text-gray-400{% endif %}">
+                <span class="text-base">🏆</span>
+                <span>Leaderboard</span>
+            </a>
+
+            <a href="{% url 'community:feed' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 hover:bg-white/5 hover:text-white {% if request.resolver_match.view_name == 'community:feed' %}bg-white/10 text-white font-semibold border-l-2 border-accent{% else %}text-gray-400{% endif %}">
+                <span class="text-base">👥</span>
+                <span>Community Feed</span>
+            </a>
+
+            <a href="{% url 'accounts:discover_athletes' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 hover:bg-white/5 hover:text-white {% if 'discover' in request.path %}bg-white/10 text-white font-semibold border-l-2 border-accent{% else %}text-gray-400{% endif %}">
+                <span class="text-base">🔍</span>
+                <span>Discover Athletes</span>
+            </a>
+
+            <a href="{% url 'community:notifications_list' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl transition-all duration-150 hover:bg-white/5 hover:text-white {% if 'notification' in request.path %}bg-white/10 text-white font-semibold border-l-2 border-accent{% else %}text-gray-400{% endif %}">
+                <div class="flex items-center gap-3">
+                    <span class="text-base">🔔</span>
+                    <span>Notifications</span>
+                </div>
+                {% if unread_notifications_count > 0 %}
+                    <span class="bg-accent text-white text-[11px] font-bold px-2 py-0.5 rounded-full animate-soft-pulse">
+                        {{ unread_notifications_count }}
+                    </span>
+                {% endif %}
+            </a>
+
+            <a href="{% url 'ranking:analytics_dashboard' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 hover:bg-white/5 hover:text-white {% if 'analytics' in request.path %}bg-white/10 text-white font-semibold border-l-2 border-accent{% else %}text-gray-400{% endif %}">
+                <span class="text-base">📊</span>
+                <span>Performance & Stats</span>
+            </a>
+        </nav>
+
+        <!-- Athlete Profile Card Footer in Left Section -->
+        <div class="p-3.5 m-3 rounded-2xl bg-bg/70 border border-border flex items-center justify-between gap-3">
+            <a href="{% url 'accounts:profile_detail' user.username %}" class="flex items-center gap-3 min-w-0 flex-1 hover:opacity-90 transition">
+                {% if nav_athlete_profile.avatar %}
+                    <img src="{{ nav_athlete_profile.avatar.url }}" class="w-10 h-10 rounded-xl object-cover border border-gold/50 flex-shrink-0">
+                {% else %}
+                    <div class="w-10 h-10 rounded-xl bg-border border border-white/10 flex items-center justify-center font-bold text-sm text-gold flex-shrink-0">
+                        {{ user.username|first|upper }}
+                    </div>
+                {% endif %}
+                <div class="min-w-0 flex-1">
+                    <div class="font-bold text-xs text-white truncate">
+                        {{ nav_athlete_profile.display_name|default:user.username }}
+                    </div>
+                    <div class="text-[11px] text-gold font-semibold truncate flex items-center gap-1">
+                        <span>{{ nav_user_rank.current_rank.name|default:"Unranked" }}</span>
+                        <span class="text-gray-500 font-normal">·</span>
+                        <span class="text-gray-400">{{ nav_user_rank.cached_xp|default:0 }} XP</span>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Logout Link -->
+            <a href="{% url 'accounts:logout' %}" class="p-2 text-gray-500 hover:text-accent hover:bg-white/5 rounded-lg transition" title="Log Out">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+            </a>
+        </div>
+    </aside>
+
+    <!-- ========================================================================= -->
+    <!-- MOBILE TOP HEADER (Small & Medium Screens)                                 -->
+    <!-- ========================================================================= -->
+    <header class="lg:hidden sticky top-0 z-40 bg-card/90 backdrop-blur-md border-b border-border px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <button id="drawer-toggle-btn" class="p-2 -ml-2 text-gray-300 hover:text-white rounded-lg hover:bg-border/60 transition" aria-label="Open Menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+            <a href="{% url 'core:dashboard' %}" class="text-xl font-black tracking-tight text-white font-display">
+                CALIS<span class="text-accent">FY</span>
+            </a>
+        </div>
+
+        <div class="flex items-center gap-2">
+            <!-- Notifications Bell -->
+            <a href="{% url 'community:notifications_list' %}" class="p-2 text-gray-300 hover:text-white rounded-lg relative transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                </svg>
+                {% if unread_notifications_count > 0 %}
+                    <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-accent rounded-full border-2 border-card animate-soft-pulse"></span>
+                {% endif %}
+            </a>
+
+            <!-- Avatar link -->
+            <a href="{% url 'accounts:profile_detail' user.username %}">
+                {% if nav_athlete_profile.avatar %}
+                    <img src="{{ nav_athlete_profile.avatar.url }}" class="w-8 h-8 rounded-full object-cover border border-gold">
+                {% else %}
+                    <div class="w-8 h-8 rounded-full bg-border flex items-center justify-center font-bold text-xs text-gold">
+                        {{ user.username|first|upper }}
+                    </div>
+                {% endif %}
+            </a>
+        </div>
+    </header>
+
+    <!-- ========================================================================= -->
+    <!-- MOBILE OFF-CANVAS LEFT DRAWER                                              -->
+    <!-- ========================================================================= -->
+    <div id="mobile-backdrop" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300 lg:hidden"></div>
+
+    <aside id="mobile-drawer" class="fixed inset-y-0 left-0 w-72 bg-card border-r border-border z-50 transform -translate-x-full transition-transform duration-300 ease-out lg:hidden flex flex-col select-none">
+        <div class="p-5 flex items-center justify-between border-b border-border">
+            <a href="{% url 'core:dashboard' %}" class="text-xl font-black tracking-tight text-white font-display">
+                CALIS<span class="text-accent">FY</span>
+            </a>
+            <button id="drawer-close-btn" class="p-2 text-gray-400 hover:text-white rounded-lg hover:bg-border/60 transition" aria-label="Close Menu">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="p-4">
+            <a href="{% url 'training:program_list' %}" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-accent to-rose-600 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-md shadow-accent/20">
+                ⚡ Start Training
+            </a>
+        </div>
+
+        <nav class="flex-1 px-3 py-2 space-y-1 overflow-y-auto text-sm font-medium">
+            <a href="{% url 'core:dashboard' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white {% if request.resolver_match.view_name == 'core:dashboard' %}bg-white/10 text-white font-semibold{% else %}text-gray-400{% endif %}">
+                <span>⚡</span> Home / Dashboard
+            </a>
+            <a href="{% url 'training:program_list' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white {% if 'training' in request.path and 'challenge' not in request.path %}bg-white/10 text-white font-semibold{% else %}text-gray-400{% endif %}">
+                <span>🏋️</span> Workouts & Programs
+            </a>
+            <a href="{% url 'skills:skill_list' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white {% if 'skills' in request.path %}bg-white/10 text-white font-semibold{% else %}text-gray-400{% endif %}">
+                <span>🧗</span> Skill Tree
+            </a>
+            <a href="{% url 'training:challenge_list' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white {% if 'challenge' in request.path %}bg-white/10 text-white font-semibold{% else %}text-gray-400{% endif %}">
+                <div class="flex items-center gap-3"><span>🎯</span> Challenges</div>
+                <span class="text-[10px] bg-accent/20 text-accent font-bold px-1.5 py-0.5 rounded">Bounties</span>
+            </a>
+            <a href="{% url 'ranking:leaderboard' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white {% if request.resolver_match.view_name == 'ranking:leaderboard' %}bg-white/10 text-white font-semibold{% else %}text-gray-400{% endif %}">
+                <span>🏆</span> Leaderboard
+            </a>
+            <a href="{% url 'community:feed' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white {% if request.resolver_match.view_name == 'community:feed' %}bg-white/10 text-white font-semibold{% else %}text-gray-400{% endif %}">
+                <span>👥</span> Community Feed
+            </a>
+            <a href="{% url 'accounts:discover_athletes' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white {% if 'discover' in request.path %}bg-white/10 text-white font-semibold{% else %}text-gray-400{% endif %}">
+                <span>🔍</span> Discover Athletes
+            </a>
+            <a href="{% url 'community:notifications_list' %}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white {% if 'notification' in request.path %}bg-white/10 text-white font-semibold{% else %}text-gray-400{% endif %}">
+                <div class="flex items-center gap-3"><span>🔔</span> Notifications</div>
+                {% if unread_notifications_count > 0 %}
+                    <span class="bg-accent text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ unread_notifications_count }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'ranking:analytics_dashboard' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white {% if 'analytics' in request.path %}bg-white/10 text-white font-semibold{% else %}text-gray-400{% endif %}">
+                <span>📊</span> Performance & Stats
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-border bg-bg/50">
+            <div class="flex items-center justify-between gap-3">
+                <a href="{% url 'accounts:profile_detail' user.username %}" class="flex items-center gap-2.5 min-w-0">
+                    <div class="w-8 h-8 rounded-lg bg-border text-gold font-bold flex items-center justify-center text-xs">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-xs font-bold text-white truncate">@{{ user.username }}</div>
+                        <div class="text-[11px] text-gold">{{ nav_user_rank.current_rank.name|default:"Unranked" }}</div>
+                    </div>
+                </a>
+                <a href="{% url 'accounts:logout' %}" class="text-xs text-gray-500 hover:text-accent p-2">Logout</a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ========================================================================= -->
+    <!-- MOBILE QUICK BOTTOM APP BAR                                                -->
+    <!-- ========================================================================= -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-md border-t border-border flex justify-around py-2 px-1 z-30 text-[10px] text-gray-400">
+        <a href="{% url 'core:dashboard' %}" class="flex flex-col items-center gap-1 px-3 py-1 rounded-lg hover:text-white {% if request.resolver_match.view_name == 'core:dashboard' %}text-accent font-bold{% endif %}">
+            <span class="text-base">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'training:program_list' %}" class="flex flex-col items-center gap-1 px-3 py-1 rounded-lg hover:text-white {% if 'training' in request.path and 'challenge' not in request.path %}text-accent font-bold{% endif %}">
+            <span class="text-base">💪</span>
+            <span>Train</span>
+        </a>
+        <a href="{% url 'skills:skill_list' %}" class="flex flex-col items-center gap-1 px-3 py-1 rounded-lg hover:text-white {% if 'skills' in request.path %}text-accent font-bold{% endif %}">
+            <span class="text-base">🧗</span>
+            <span>Skills</span>
+        </a>
+        <a href="{% url 'training:challenge_list' %}" class="flex flex-col items-center gap-1 px-3 py-1 rounded-lg hover:text-white {% if 'challenge' in request.path %}text-accent font-bold{% endif %}">
+            <span class="text-base">🎯</span>
+            <span>Bounties</span>
+        </a>
+        <a href="{% url 'accounts:profile_detail' user.username %}" class="flex flex-col items-center gap-1 px-3 py-1 rounded-lg hover:text-white {% if request.resolver_match.view_name == 'accounts:profile_detail' %}text-accent font-bold{% endif %}">
+            <span class="text-base">👤</span>
+            <span>Profile</span>
+        </a>
+    </nav>
+{% else %}
+    <!-- Public Guest Top Navigation -->
+    <nav class="flex items-center justify-between px-6 py-4 border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-30">
+        <a href="{% url 'core:landing' %}" class="text-2xl font-black tracking-tight text-white font-display">
+            CALIS<span class="text-accent">FY</span>
+        </a>
         <div class="flex items-center gap-4">
-            {% if user.is_authenticated %}
-                <a href="{% url 'accounts:profile_detail' user.username %}" class="text-sm font-semibold hover:text-accent">@{{ user.username }}</a>
-                <a href="{% url 'accounts:logout' %}" class="text-xs text-gray-400 hover:text-white">Logout</a>
-            {% else %}
-                <a href="{% url 'accounts:login' %}" class="text-sm hover:text-white">Log in</a>
-                <a href="{% url 'accounts:signup' %}" class="bg-accent text-white text-sm font-semibold px-4 py-2 rounded-lg hover:opacity-90">Start Training</a>
-            {% endif %}
+            <a href="{% url 'accounts:login' %}" class="text-sm font-medium text-gray-300 hover:text-white transition">Log in</a>
+            <a href="{% url 'accounts:signup' %}" class="bg-gradient-to-r from-accent to-rose-600 text-white text-xs sm:text-sm font-bold px-4 sm:px-5 py-2 rounded-xl shadow-md shadow-accent/20 hover:opacity-95 transition">Start Training</a>
         </div>
     </nav>
+{% endif %}
 
-    <main class="max-w-5xl mx-auto px-4 py-6">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="mb-4 px-4 py-3 rounded-lg bg-card border border-border text-sm">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        {% block content %}{% endblock %}
-    </main>
+    <!-- ========================================================================= -->
+    <!-- MAIN CONTENT AREA                                                         -->
+    <!-- ========================================================================= -->
+    <div class="flex-1 flex flex-col {% if user.is_authenticated %}lg:pl-64 xl:pl-72{% endif %}">
+        <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 lg:pb-12">
+            <!-- Global Flash Messages -->
+            {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for message in messages %}
+                        <div class="px-4 py-3 rounded-xl border text-sm flex items-center justify-between gap-3 shadow-lg
+                            {% if message.tags == 'success' %}
+                                bg-emerald-500/10 border-emerald-500/30 text-emerald-300
+                            {% elif message.tags == 'error' %}
+                                bg-rose-500/10 border-rose-500/30 text-rose-300
+                            {% else %}
+                                bg-card border-border text-gray-200
+                            {% endif %}">
+                            <div class="flex items-center gap-2.5">
+                                {% if message.tags == 'success' %}✓{% else %}ℹ{% endif %}
+                                <span>{{ message }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
 
-    {% if user.is_authenticated %}
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-card border-t border-border flex justify-around py-2 text-xs text-gray-300">
-        <a href="{% url 'core:dashboard' %}" class="flex flex-col items-center">🏠<span>Home</span></a>
-        <a href="{% url 'training:program_list' %}" class="flex flex-col items-center">💪<span>Train</span></a>
-        <a href="{% url 'skills:skill_list' %}" class="flex flex-col items-center">🧗<span>Skills</span></a>
-        <a href="{% url 'community:feed' %}" class="flex flex-col items-center">👥<span>Community</span></a>
-        <a href="{% url 'accounts:profile_detail' user.username %}" class="flex flex-col items-center">👤<span>Profile</span></a>
-    </nav>
-    {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <!-- Responsive Drawer Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const drawerBtn = document.getElementById('drawer-toggle-btn');
+            const closeBtn = document.getElementById('drawer-close-btn');
+            const drawer = document.getElementById('mobile-drawer');
+            const backdrop = document.getElementById('mobile-backdrop');
+
+            function openDrawer() {
+                if (!drawer || !backdrop) return;
+                backdrop.classList.remove('hidden');
+                setTimeout(() => {
+                    backdrop.classList.remove('opacity-0');
+                    drawer.classList.remove('-translate-x-full');
+                }, 10);
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeDrawer() {
+                if (!drawer || !backdrop) return;
+                drawer.classList.add('-translate-x-full');
+                backdrop.classList.add('opacity-0');
+                setTimeout(() => {
+                    backdrop.classList.add('hidden');
+                }, 300);
+                document.body.style.overflow = '';
+            }
+
+            if (drawerBtn) drawerBtn.addEventListener('click', openDrawer);
+            if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+            if (backdrop) backdrop.addEventListener('click', closeDrawer);
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') closeDrawer();
+            });
+        });
+    </script>
 </body>
 </html>

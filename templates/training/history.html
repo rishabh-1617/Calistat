@@ -1,12 +1,71 @@
 {% extends "base.html" %}
+{% block title %}Workout History — Calisfy{% endblock %}
+
 {% block content %}
-<h1 class="text-xl font-bold mb-4">Workout History</h1>
-<div class="space-y-2">
-    {% for s in sessions %}
-    <div class="bg-card border border-border rounded-lg p-3 flex justify-between text-sm">
-        <span>{{ s.workout.title }}</span>
-        <span class="text-gray-500">{{ s.started_at|date:"M d, Y" }} {% if s.is_completed %}✓{% endif %}</span>
+<div class="max-w-4xl mx-auto space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl sm:text-3xl font-black text-white font-display">Workout Log History</h1>
+                <span class="bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-bold px-2.5 py-1 rounded-full">
+                    {{ total_workouts }} Completed
+                </span>
+            </div>
+            <p class="text-xs sm:text-sm text-gray-400 mt-1">Review your completed workout volume and training consistency.</p>
+        </div>
+
+        <a href="{% url 'training:program_list' %}" class="px-4 py-2.5 bg-accent hover:bg-accentHover text-white font-bold text-xs rounded-xl shadow-md shadow-accent/20 transition self-start sm:self-auto flex items-center gap-1.5">
+            <span>+ New Workout</span>
+        </a>
     </div>
-    {% empty %}<p class="text-gray-500">No workouts completed yet.</p>{% endfor %}
+
+    <!-- Timeline list -->
+    <div class="space-y-3">
+        {% for s in sessions %}
+            <div class="bg-card border border-border hover:border-border/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition">
+                <div class="flex items-start sm:items-center gap-3.5">
+                    <div class="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0
+                        {% if s.is_completed %}bg-emerald-500/15 text-emerald-400 border border-emerald-500/30{% else %}bg-card text-gray-400 border border-border{% endif %}">
+                        {% if s.is_completed %}✓{% else %}⏱️{% endif %}
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base text-white">{{ s.workout.title }}</h3>
+                        <div class="flex items-center gap-3 text-xs text-gray-400 mt-0.5">
+                            <span>📅 {{ s.started_at|date:"M d, Y · H:i" }}</span>
+                            {% if s.workout.program %}
+                                <span>•</span>
+                                <span class="text-gray-500">{{ s.workout.program.name }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/60">
+                    {% if s.is_completed %}
+                        <span class="text-xs font-bold text-gold px-2.5 py-1 rounded-lg bg-gold/10 border border-gold/20">
+                            +50 XP Earned
+                        </span>
+                    {% else %}
+                        <span class="text-xs text-amber-400 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                            Incomplete
+                        </span>
+                    {% endif %}
+
+                    <a href="{% url 'training:workout_player' s.workout.pk %}" class="text-xs font-semibold px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition">
+                        Repeat →
+                    </a>
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center py-16 px-4 bg-card/40 border border-border rounded-2xl">
+                <div class="text-3xl mb-2">💪</div>
+                <h3 class="text-base font-bold text-white mb-1">No completed sessions yet</h3>
+                <p class="text-xs sm:text-sm text-gray-400 max-w-sm mx-auto mb-4">Select a program or workout routine to begin recording your calisthenics sessions.</p>
+                <a href="{% url 'training:program_list' %}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-accent text-white font-bold text-xs rounded-xl shadow-md">
+                    Explore Training Programs →
+                </a>
+            </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

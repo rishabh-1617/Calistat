@@ -1,38 +1,153 @@
 {% extends "base.html" %}
+{% block title %}Community Feed — Calisfy{% endblock %}
+
 {% block content %}
-<h1 class="text-2xl font-bold mb-4">Community</h1>
-
-{% if form %}
-<form method="post" action="{% url 'community:create_post' %}" enctype="multipart/form-data" class="bg-card border border-border rounded-xl p-4 mb-6">
-    {% csrf_token %}
-    <textarea name="content" placeholder="Share your progress..." class="w-full bg-bg border border-border rounded-lg p-3 text-sm" rows="2" required></textarea>
-    <div class="flex justify-between items-center mt-2">
-        <input type="file" name="image" accept="image/*" class="text-xs text-gray-500">
-        <button class="bg-accent px-4 py-2 rounded-lg text-sm font-semibold">Post</button>
-    </div>
-</form>
-{% endif %}
-
-<div class="space-y-4">
-    {% for post in posts %}
-    <div class="bg-card border border-border rounded-xl p-4">
-        <div class="flex justify-between">
-            <a href="{% url 'accounts:profile_detail' post.user.username %}" class="font-semibold hover:text-accent">@{{ post.user.username }}</a>
-            <span class="text-xs text-gray-500">{{ post.created_at|timesince }} ago</span>
+<div class="max-w-2xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl sm:text-3xl font-black text-white font-display tracking-tight">Athlete Community</h1>
+            <p class="text-xs sm:text-sm text-gray-400 mt-1">Share training updates, form checks, and PR milestones.</p>
         </div>
-        <p class="mt-2 text-gray-200">{{ post.content }}</p>
-        {% if post.image %}<img src="{{ post.image.url }}" class="mt-2 rounded-lg max-h-80 object-cover">{% endif %}
-        <div class="flex gap-4 mt-3 text-sm text-gray-400">
-            <form method="post" action="{% url 'community:toggle_like' post.pk %}">{% csrf_token %}
-                <button class="hover:text-accent">❤️ {{ post.like_count }}</button>
-            </form>
-            <span>💬 {{ post.comment_count }}</span>
-            <form method="post" action="{% url 'community:report_post' post.pk %}" class="ml-auto">{% csrf_token %}
-                <input type="hidden" name="reason" value="Reported by user">
-                <button class="text-xs text-gray-600 hover:text-accent">Report</button>
-            </form>
-        </div>
+        <a href="{% url 'accounts:discover_athletes' %}" class="px-3.5 py-2 bg-card hover:bg-border border border-border text-gray-300 hover:text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+            <span>🔍 Discover</span>
+        </a>
     </div>
-    {% empty %}<p class="text-gray-500">No posts yet — be the first!</p>{% endfor %}
+
+    <!-- Post Creation Box -->
+    {% if form %}
+        <form method="post" action="{% url 'community:create_post' %}" enctype="multipart/form-data" class="bg-card border border-border rounded-2xl p-5 shadow-xl">
+            {% csrf_token %}
+            <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-xl bg-border text-gold font-bold flex items-center justify-center text-xs flex-shrink-0">
+                    {{ user.username|first|upper }}
+                </div>
+                <div class="flex-1 min-w-0">
+                    <textarea name="content" placeholder="Share your workout PR, skill progression, or training thought..." class="w-full bg-bg/80 border border-border rounded-xl p-3 text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-accent transition resize-none" rows="3" required></textarea>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between mt-3 pt-3 border-t border-border/80">
+                <label class="cursor-pointer inline-flex items-center gap-2 text-xs text-gray-400 hover:text-white transition py-1.5 px-3 rounded-lg hover:bg-border/60">
+                    <svg class="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Attach Photo</span>
+                    <input type="file" name="image" accept="image/*" class="hidden">
+                </label>
+
+                <button type="submit" class="px-5 py-2 bg-gradient-to-r from-accent to-rose-600 hover:opacity-95 text-white font-bold text-xs rounded-xl shadow-md shadow-accent/20 transition">
+                    Publish Post
+                </button>
+            </div>
+        </form>
+    {% endif %}
+
+    <!-- Posts Feed -->
+    <div class="space-y-4">
+        {% for post in posts %}
+            <div class="bg-card border border-border rounded-2xl p-5 shadow-lg space-y-3">
+                <!-- Post Author Header -->
+                <div class="flex items-center justify-between">
+                    <a href="{% url 'accounts:profile_detail' post.user.username %}" class="flex items-center gap-3 group">
+                        <div class="w-10 h-10 rounded-xl bg-border border border-white/10 flex items-center justify-center font-bold text-xs text-gold flex-shrink-0">
+                            {{ post.user.username|first|upper }}
+                        </div>
+                        <div>
+                            <div class="font-bold text-sm text-white group-hover:text-accent transition">
+                                @{{ post.user.username }}
+                            </div>
+                            <div class="text-[11px] text-gray-500">
+                                {{ post.created_at|timesince }} ago
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Report Menu button -->
+                    <form method="post" action="{% url 'community:report_post' post.pk %}" onsubmit="return confirm('Report this post to moderators?');">
+                        {% csrf_token %}
+                        <input type="hidden" name="reason" value="User reported content">
+                        <button type="submit" class="text-xs text-gray-600 hover:text-gray-400 p-1 rounded-lg" title="Report post">
+                            ⚑
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Post Text -->
+                <p class="text-xs sm:text-sm text-gray-200 leading-relaxed whitespace-pre-line">
+                    {{ post.content }}
+                </p>
+
+                <!-- Post Image if available -->
+                {% if post.image %}
+                    <div class="rounded-xl overflow-hidden border border-border/80 max-h-96 bg-black/40">
+                        <img src="{{ post.image.url }}" alt="Post image" class="w-full h-auto object-cover">
+                    </div>
+                {% endif %}
+
+                <!-- Action Bar (Likes & Comments) -->
+                <div class="pt-3 border-t border-border/70 flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-4">
+                        <form method="post" action="{% url 'community:toggle_like' post.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg/80 border border-border hover:border-accent/40 text-gray-300 hover:text-white transition">
+                                <span class="{% if post.id in liked_post_ids %}text-rose-500{% else %}text-gray-500{% endif %}">❤️</span>
+                                <span class="font-bold">{{ post.like_count }}</span>
+                            </button>
+                        </form>
+
+                        <button onclick="toggleComments({{ post.id }})" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bg/80 border border-border hover:border-border text-gray-300 hover:text-white transition">
+                            <span>💬</span>
+                            <span class="font-bold">{{ post.comment_count }}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Comments Section Drawer -->
+                <div id="comments-box-{{ post.id }}" class="pt-3 border-t border-border/60 space-y-3">
+                    <!-- Comment List -->
+                    <div class="space-y-2">
+                        {% for c in post.comments.all %}
+                            <div class="p-2.5 rounded-xl bg-bg/60 border border-border/40 text-xs">
+                                <div class="flex items-center justify-between mb-1">
+                                    <a href="{% url 'accounts:profile_detail' c.user.username %}" class="font-bold text-gray-300 hover:text-accent">
+                                        @{{ c.user.username }}
+                                    </a>
+                                    <span class="text-[10px] text-gray-500">{{ c.created_at|timesince }} ago</span>
+                                </div>
+                                <p class="text-gray-300 leading-snug">{{ c.content }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Add Comment Inline Form -->
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'community:add_comment' post.pk %}" class="flex gap-2">
+                            {% csrf_token %}
+                            <input type="text" name="content" placeholder="Write a reply..." class="flex-1 bg-bg/90 border border-border rounded-xl px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accent" required>
+                            <button type="submit" class="px-4 py-1.5 bg-accent text-white text-xs font-bold rounded-xl hover:opacity-90 transition">
+                                Reply
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div class="text-center py-16 px-4 bg-card/40 border border-border rounded-2xl">
+                <div class="text-3xl mb-2">💬</div>
+                <h3 class="text-base font-bold text-white mb-1">No community posts yet</h3>
+                <p class="text-xs sm:text-sm text-gray-400">Share your journey or be the first athlete to post!</p>
+            </div>
+        {% endfor %}
+    </div>
 </div>
+
+<script>
+    function toggleComments(postId) {
+        const box = document.getElementById('comments-box-' + postId);
+        if (box) {
+            box.classList.toggle('hidden');
+        }
+    }
+</script>
 {% endblock %}

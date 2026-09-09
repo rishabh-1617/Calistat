@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% block title %}Challenges & Bounties — Calisfy{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto">
+    <!-- Header Hero -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white font-display">Calisthenics Challenges</h1>
+                <span class="bg-accent/20 border border-accent/40 text-accent text-xs font-bold px-2.5 py-1 rounded-full">
+                    XP Bounties
+                </span>
+            </div>
+            <p class="text-xs sm:text-sm text-gray-400 mt-1">
+                Push your limits daily, conquer weekly bounties, and climb the ranks faster.
+            </p>
+        </div>
+
+        <!-- Filter tabs -->
+        <div class="flex items-center gap-1.5 p-1 bg-card border border-border rounded-xl self-start sm:self-auto">
+            <a href="{% url 'training:challenge_list' %}?cadence=all" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition {% if selected_cadence == 'all' %}bg-accent text-white{% else %}text-gray-400 hover:text-white{% endif %}">
+                All
+            </a>
+            <a href="{% url 'training:challenge_list' %}?cadence=daily" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition {% if selected_cadence == 'daily' %}bg-accent text-white{% else %}text-gray-400 hover:text-white{% endif %}">
+                ⚡ Daily
+            </a>
+            <a href="{% url 'training:challenge_list' %}?cadence=weekly" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition {% if selected_cadence == 'weekly' %}bg-accent text-white{% else %}text-gray-400 hover:text-white{% endif %}">
+                🏆 Weekly
+            </a>
+        </div>
+    </div>
+
+    <!-- Challenges Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        {% for item in challenges %}
+            {% with c=item.challenge %}
+            <div class="bg-card border rounded-2xl p-5 flex flex-col justify-between transition-all duration-200
+                {% if item.xp_claimed %}
+                    border-gold/40 bg-card/60 shadow-lg shadow-gold/5
+                {% elif item.is_completed %}
+                    border-emerald-500/50 shadow-lg shadow-emerald-500/10
+                {% else %}
+                    border-border hover:border-border/80 hover:bg-card/90
+                {% endif %}">
+                
+                <div>
+                    <!-- Card Top: Cadence tag & XP Reward -->
+                    <div class="flex items-center justify-between gap-2 mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full
+                            {% if c.cadence == 'daily' %}
+                                bg-amber-500/10 text-amber-400 border border-amber-500/20
+                            {% elif c.cadence == 'weekly' %}
+                                bg-purple-500/10 text-purple-400 border border-purple-500/20
+                            {% else %}
+                                bg-blue-500/10 text-blue-400 border border-blue-500/20
+                            {% endif %}">
+                            {{ c.get_cadence_display }}
+                        </span>
+
+                        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-gold/15 text-gold border border-gold/30">
+                            +{{ c.xp_reward }} XP
+                        </span>
+                    </div>
+
+                    <!-- Title & Icon -->
+                    <div class="flex items-start gap-3 mb-2">
+                        <span class="text-2xl flex-shrink-0">{{ c.badge_icon }}</span>
+                        <div>
+                            <h3 class="font-bold text-white text-base leading-snug">{{ c.title }}</h3>
+                            <span class="text-[11px] text-gray-500 font-medium uppercase tracking-wide">{{ c.get_category_display }}</span>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-gray-400 leading-relaxed mt-2 mb-4">
+                        {{ c.description }}
+                    </p>
+                </div>
+
+                <!-- Progress & Actions -->
+                <div class="pt-3 border-t border-border/80">
+                    <div class="flex items-center justify-between text-xs mb-1.5">
+                        <span class="text-gray-400">Target: <strong class="text-gray-200">{{ c.target_metric }}</strong></span>
+                        <span class="font-bold {% if item.is_completed %}text-emerald-400{% else %}text-white{% endif %}">
+                            {{ item.progress }} / {{ c.target_value }} ({{ item.pct }}%)
+                        </span>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="w-full h-2 bg-bg rounded-full overflow-hidden mb-4 border border-border/50">
+                        <div class="h-full rounded-full transition-all duration-500
+                            {% if item.xp_claimed %}
+                                bg-gold
+                            {% elif item.is_completed %}
+                                bg-emerald-500
+                            {% else %}
+                                bg-gradient-to-r from-accent to-rose-500
+                            {% endif %}"
+                            style="width: {{ item.pct }}%;">
+                        </div>
+                    </div>
+
+                    <!-- Action buttons based on state -->
+                    {% if item.xp_claimed %}
+                        <div class="w-full py-2.5 px-3 rounded-xl bg-gold/10 border border-gold/30 text-gold text-xs font-bold text-center flex items-center justify-center gap-2">
+                            ✓ Claimed +{{ c.xp_reward }} XP
+                        </div>
+                    {% elif item.is_completed %}
+                        <form method="post" action="{% url 'training:claim_challenge_xp' c.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold text-center transition shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 animate-soft-pulse">
+                                🎁 Claim +{{ c.xp_reward }} XP Reward!
+                            </button>
+                        </form>
+                    {% else %}
+                        <div class="flex items-center gap-2">
+                            <form method="post" action="{% url 'training:update_challenge_progress' c.pk %}" class="flex-1 flex gap-1.5">
+                                {% csrf_token %}
+                                <input type="hidden" name="increment" value="10">
+                                <button type="submit" class="flex-1 py-2 px-2 bg-card hover:bg-border border border-border rounded-xl text-xs font-semibold text-gray-300 hover:text-white transition text-center">
+                                    +10 reps
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'training:update_challenge_progress' c.pk %}" class="flex-1 flex gap-1.5">
+                                {% csrf_token %}
+                                <input type="hidden" name="increment" value="25">
+                                <button type="submit" class="flex-1 py-2 px-2 bg-card hover:bg-border border border-border rounded-xl text-xs font-semibold text-gray-300 hover:text-white transition text-center">
+                                    +25 reps
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'training:update_challenge_progress' c.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="increment" value="{{ c.target_value }}">
+                                <button type="submit" class="py-2 px-3 bg-accent/20 hover:bg-accent border border-accent/40 hover:border-accent text-accent hover:text-white rounded-xl text-xs font-bold transition text-center" title="Mark completely done">
+                                    ✓ Done
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+
+            </div>
+            {% endwith %}
+        {% empty %}
+            <div class="col-span-full text-center py-16 px-4 bg-card/40 border border-border/80 rounded-2xl">
+                <div class="text-3xl mb-2">🎯</div>
+                <h3 class="text-lg font-bold text-white mb-1">No challenges available</h3>
+                <p class="text-sm text-gray-400">Check back soon for new calisthenics bounties!</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

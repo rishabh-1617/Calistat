@@ -113,6 +113,12 @@ def toggle_follow(request, username):
             target_profile.followers.remove(my_profile)
         else:
             target_profile.followers.add(my_profile)
+            from community.models import Notification
+            Notification.objects.create(
+                user=target_user,
+                notif_type="new_follower",
+                message=f"@{request.user.username} started following you!"
+            )
     return redirect("accounts:profile_detail", username=username)
 
 

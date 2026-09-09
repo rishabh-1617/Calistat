@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Athlete Analytics & Mastery — Calisfy{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto space-y-6 sm:space-y-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white font-display">Performance & Analytics</h1>
+                <span class="bg-gold/15 border border-gold/30 text-gold text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    {{ user_rank.current_rank.name|default:"Unranked" }}
+                </span>
+            </div>
+            <p class="text-xs sm:text-sm text-gray-400 mt-1">Comprehensive breakdown of your calisthenics skill mastery, XP milestones, and training volume.</p>
+        </div>
+    </div>
+
+    <!-- Quick Stats Metric Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <div class="bg-card border border-border rounded-2xl p-4 text-center">
+            <span class="text-xl sm:text-2xl mb-1 block">⚡</span>
+            <div class="text-lg sm:text-xl font-black text-white">{{ user_rank.cached_xp }}</div>
+            <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">Total XP</div>
+        </div>
+
+        <div class="bg-card border border-border rounded-2xl p-4 text-center">
+            <span class="text-xl sm:text-2xl mb-1 block">🧗</span>
+            <div class="text-lg sm:text-xl font-black text-emerald-400">{{ total_user_verified }} <span class="text-xs text-gray-500 font-normal">/ {{ total_platform_skills }}</span></div>
+            <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">Verified Skills</div>
+        </div>
+
+        <div class="bg-card border border-border rounded-2xl p-4 text-center">
+            <span class="text-xl sm:text-2xl mb-1 block">💪</span>
+            <div class="text-lg sm:text-xl font-black text-white">{{ total_workout_count }}</div>
+            <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">Workouts</div>
+        </div>
+
+        <div class="bg-card border border-border rounded-2xl p-4 text-center">
+            <span class="text-xl sm:text-2xl mb-1 block">🎯</span>
+            <div class="text-lg sm:text-xl font-black text-accent">{{ completed_challenges }}</div>
+            <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">Challenges</div>
+        </div>
+
+        <div class="bg-card border border-border rounded-2xl p-4 text-center">
+            <span class="text-xl sm:text-2xl mb-1 block">🏆</span>
+            <div class="text-lg sm:text-xl font-black text-gold">{{ earned_achievements }} <span class="text-xs text-gray-500 font-normal">/ {{ total_achievements }}</span></div>
+            <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">Badges</div>
+        </div>
+
+        <div class="bg-card border border-border rounded-2xl p-4 text-center">
+            <span class="text-xl sm:text-2xl mb-1 block">🔥</span>
+            <div class="text-lg sm:text-xl font-black text-white">{{ overall_mastery_pct }}%</div>
+            <div class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mt-0.5">Tree Mastery</div>
+        </div>
+    </div>
+
+    <!-- Rank Progression Banner -->
+    <div class="bg-gradient-to-br from-card to-card/70 border border-border rounded-2xl p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+            <div>
+                <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">Current Tier Progress</span>
+                <div class="text-lg sm:text-xl font-bold text-white flex items-center gap-2 mt-0.5">
+                    <span class="text-gold">{{ user_rank.current_rank.name|default:"Unranked" }}</span>
+                    {% if next_rank %}
+                        <span class="text-gray-500 font-normal">→</span>
+                        <span class="text-white">{{ next_rank.name }}</span>
+                    {% else %}
+                        <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">Apex Tier</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if next_rank %}
+                <div class="text-left sm:text-right">
+                    <span class="text-xs font-bold text-accent">{{ xp_needed }} XP remaining</span>
+                    <div class="text-xs text-gray-500 mt-0.5">Target: {{ next_rank.min_xp }} XP</div>
+                </div>
+            {% endif %}
+        </div>
+
+        {% if next_rank %}
+            <div class="w-full h-3 bg-bg rounded-full overflow-hidden border border-border/60">
+                <div class="h-full bg-gradient-to-r from-accent via-rose-500 to-gold rounded-full transition-all duration-700"
+                    style="width: {% widthratio user_rank.cached_xp next_rank.min_xp 100 %}%;">
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Two-column: Category Skill Mastery & Recent XP Ledger -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Category Skill Mastery -->
+        <div class="bg-card border border-border rounded-2xl p-5 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-base sm:text-lg font-bold text-white font-display">Skill Tree Category Mastery</h2>
+                <a href="{% url 'skills:skill_list' %}" class="text-xs text-accent hover:underline font-semibold">View Tree →</a>
+            </div>
+
+            <div class="space-y-4">
+                {% for cs in category_stats %}
+                    <div>
+                        <div class="flex items-center justify-between text-xs sm:text-sm mb-1.5">
+                            <span class="font-semibold text-gray-200">{{ cs.category.name }}</span>
+                            <span class="text-gray-400 text-xs">
+                                <strong class="text-emerald-400">{{ cs.verified }}</strong> verified · <span class="text-gray-500">{{ cs.total }} total</span> ({{ cs.pct }}%)
+                            </span>
+                        </div>
+                        <div class="w-full h-2.5 bg-bg rounded-full overflow-hidden border border-border/50">
+                            <div class="h-full rounded-full transition-all duration-500
+                                {% if cs.pct == 100 %}
+                                    bg-gold
+                                {% elif cs.pct > 50 %}
+                                    bg-emerald-500
+                                {% else %}
+                                    bg-gradient-to-r from-accent to-amber-500
+                                {% endif %}"
+                                style="width: {{ cs.pct }}%;">
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <p class="text-sm text-gray-500">No skill categories available.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Recent XP Ledger -->
+        <div class="bg-card border border-border rounded-2xl p-5 sm:p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-base sm:text-lg font-bold text-white font-display">Recent XP Transactions</h2>
+                <span class="text-xs text-gray-500">Live Ledger</span>
+            </div>
+
+            <div class="space-y-2.5">
+                {% for tx in xp_history %}
+                    <div class="p-3 bg-bg/60 border border-border/60 rounded-xl flex items-center justify-between text-xs sm:text-sm">
+                        <div class="flex items-center gap-3">
+                            <span class="w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center text-sm">
+                                {% if tx.source == 'workout_completed' %}💪
+                                {% elif tx.source == 'skill_verified' %}✓
+                                {% elif tx.source == 'achievement_unlocked' %}🏆
+                                {% elif tx.source == 'challenge_completed' %}🎯
+                                {% else %}⚡{% endif %}
+                            </span>
+                            <div>
+                                <div class="font-semibold text-gray-200">{{ tx.get_source_display }}</div>
+                                <div class="text-[11px] text-gray-500">{{ tx.created_at|date:"M d, Y · H:i" }}</div>
+                            </div>
+                        </div>
+
+                        <span class="font-black text-emerald-400 text-sm">
+                            +{{ tx.amount }} XP
+                        </span>
+                    </div>
+                {% empty %}
+                    <div class="text-center py-12 text-gray-500 text-xs">
+                        No XP transactions recorded yet. Complete your first workout or verification to start earning!
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

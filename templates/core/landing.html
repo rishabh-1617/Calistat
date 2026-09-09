@@ -1,40 +1,119 @@
 {% extends "base.html" %}
-{% block title %}Calisfy — Master Your Body{% endblock %}
+{% block title %}Calisfy — Master Your Body, Build Your Athlete Identity{% endblock %}
+
 {% block content %}
-<section class="text-center py-16">
-    <h1 class="text-4xl md:text-6xl font-black leading-tight">Master Your Body.<br><span class="text-accent">Build Your Athlete Identity.</span></h1>
-    <p class="mt-6 text-gray-400 max-w-xl mx-auto">Learn calisthenics skills, follow structured training, track your progression, prove your achievements, and connect with athletes around the world.</p>
-    <div class="mt-8 flex justify-center gap-4">
-        <a href="{% url 'accounts:signup' %}" class="bg-accent px-6 py-3 rounded-lg font-semibold hover:opacity-90">Start Training</a>
-        <a href="{% url 'skills:skill_list' %}" class="border border-border px-6 py-3 rounded-lg font-semibold hover:bg-card">Explore Skills</a>
-    </div>
-</section>
+<div class="space-y-16 sm:space-y-24 py-8 sm:py-12">
+    <!-- Hero Section -->
+    <section class="text-center max-w-4xl mx-auto px-2 relative">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/10 border border-accent/30 text-accent text-xs font-bold uppercase tracking-wider mb-6 animate-soft-pulse">
+            ⚡ The Calisthenics Progression Platform
+        </div>
 
-<section class="grid grid-cols-3 md:grid-cols-6 gap-2 text-center text-xs md:text-sm text-gray-400 py-8 border-y border-border">
-    <div class="p-3">LEARN</div>
-    <div class="p-3">TRAIN</div>
-    <div class="p-3">PROGRESS</div>
-    <div class="p-3">VERIFY</div>
-    <div class="p-3">RANK</div>
-    <div class="p-3">CONNECT</div>
-</section>
+        <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1] text-white font-display">
+            Master Your Body.<br>
+            <span class="bg-gradient-to-r from-accent via-rose-500 to-amber-400 bg-clip-text text-transparent">
+                Build Your Athlete Identity.
+            </span>
+        </h1>
 
-<section class="py-12 text-center">
-    <h2 class="text-2xl font-bold mb-2">Skill Progression, Not Guesswork</h2>
-    <p class="text-gray-400 mb-6">Every skill has a structured path.</p>
-    <div class="flex flex-wrap justify-center gap-3 text-sm font-medium">
-        <span class="bg-card border border-border px-4 py-2 rounded-full">Pull-up</span>
-        <span class="text-gray-500">→</span>
-        <span class="bg-card border border-border px-4 py-2 rounded-full">Chest-to-bar</span>
-        <span class="text-gray-500">→</span>
-        <span class="bg-card border border-border px-4 py-2 rounded-full">Explosive Pull-up</span>
-        <span class="text-gray-500">→</span>
-        <span class="bg-card border border-gold text-gold px-4 py-2 rounded-full">Muscle-up</span>
-    </div>
-</section>
+        <p class="mt-6 text-base sm:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            Follow structured calisthenics training, climb the global rank engine, track your verification status on 100+ skills, and connect with athletes worldwide.
+        </p>
 
-<section class="py-12 text-center">
-    <h2 class="text-2xl font-bold mb-4">Start Your Calisthenics Journey</h2>
-    <a href="{% url 'accounts:signup' %}" class="bg-accent px-8 py-3 rounded-lg font-semibold hover:opacity-90 inline-block">Create Free Account</a>
-</section>
+        <div class="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
+            <a href="{% url 'accounts:signup' %}" class="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-accent to-rose-600 hover:opacity-95 text-white font-bold text-sm sm:text-base rounded-2xl shadow-xl shadow-accent/25 transition transform active:scale-95">
+                Start Training Free →
+            </a>
+            <a href="{% url 'skills:skill_list' %}" class="w-full sm:w-auto px-8 py-3.5 bg-card hover:bg-border border border-border text-white font-semibold text-sm sm:text-base rounded-2xl transition">
+                Explore Skill Tree
+            </a>
+        </div>
+
+        <!-- Metric highlights -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mt-12 sm:mt-16 text-center">
+            <div class="p-4 bg-card/60 border border-border/80 rounded-2xl">
+                <div class="text-2xl sm:text-3xl font-black text-white font-display">100+</div>
+                <div class="text-xs text-gray-400 mt-1 font-medium">Progressive Skills</div>
+            </div>
+            <div class="p-4 bg-card/60 border border-border/80 rounded-2xl">
+                <div class="text-2xl sm:text-3xl font-black text-gold font-display">7 Tiers</div>
+                <div class="text-xs text-gray-400 mt-1 font-medium">Rank Engine</div>
+            </div>
+            <div class="p-4 bg-card/60 border border-border/80 rounded-2xl">
+                <div class="text-2xl sm:text-3xl font-black text-emerald-400 font-display">100%</div>
+                <div class="text-xs text-gray-400 mt-1 font-medium">Strict Verification</div>
+            </div>
+            <div class="p-4 bg-card/60 border border-border/80 rounded-2xl">
+                <div class="text-2xl sm:text-3xl font-black text-accent font-display">Daily</div>
+                <div class="text-xs text-gray-400 mt-1 font-medium">XP Bounties</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Core Pillars Grid -->
+    <section class="max-w-6xl mx-auto">
+        <div class="text-center mb-10">
+            <h2 class="text-2xl sm:text-3xl font-black text-white font-display">Engineered for Strict Athletes</h2>
+            <p class="text-xs sm:text-sm text-gray-400 mt-2">Every feature in Calisfy is built around verified progress and real mastery.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="p-6 bg-card border border-border rounded-2xl hover:border-accent/40 transition">
+                <div class="w-12 h-12 rounded-xl bg-accent/15 text-accent text-2xl flex items-center justify-center mb-4">
+                    🧗
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Prerequisite Trees</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">
+                    Clear dependency trees for every movement: from hollow body and dead hang to full planche and iron cross.
+                </p>
+            </div>
+
+            <div class="p-6 bg-card border border-border rounded-2xl hover:border-accent/40 transition">
+                <div class="w-12 h-12 rounded-xl bg-gold/15 text-gold text-2xl flex items-center justify-center mb-4">
+                    ⚡
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Mathematical Rank Engine</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">
+                    Your athlete rank is computed from XP earned, verified skills, and difficulty scores. No pay-to-win, no vanity metrics.
+                </p>
+            </div>
+
+            <div class="p-6 bg-card border border-border rounded-2xl hover:border-accent/40 transition">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/15 text-emerald-400 text-2xl flex items-center justify-center mb-4">
+                    ✓
+                </div>
+                <h3 class="text-lg font-bold text-white mb-2">Video Verification</h3>
+                <p class="text-sm text-gray-400 leading-relaxed">
+                    Submit your form check recordings to human reviewers. Only strict, locked-out reps earn the verified athlete badge.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visual Skill Progression Pathway -->
+    <section class="max-w-4xl mx-auto p-6 sm:p-8 bg-card border border-border rounded-3xl text-center">
+        <h2 class="text-xl sm:text-2xl font-black text-white font-display mb-2">Progression, Never Guesswork</h2>
+        <p class="text-xs sm:text-sm text-gray-400 mb-8 max-w-lg mx-auto">Follow structured steps where every progression builds joint strength and neurological control.</p>
+
+        <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm font-semibold">
+            <span class="bg-bg border border-border px-3.5 py-2 rounded-xl text-gray-300">Pull-Up</span>
+            <span class="text-accent font-bold">→</span>
+            <span class="bg-bg border border-border px-3.5 py-2 rounded-xl text-gray-300">Chest-To-Bar</span>
+            <span class="text-accent font-bold">→</span>
+            <span class="bg-bg border border-border px-3.5 py-2 rounded-xl text-gray-300">Explosive High Pull</span>
+            <span class="text-accent font-bold">→</span>
+            <span class="bg-gold/15 border border-gold/40 px-4 py-2 rounded-xl text-gold font-bold shadow-lg shadow-gold/10">
+                Bar Muscle-Up 🏆
+            </span>
+        </div>
+    </section>
+
+    <!-- Bottom CTA -->
+    <section class="text-center py-8">
+        <h2 class="text-3xl sm:text-4xl font-black text-white font-display mb-4">Ready to test your limits?</h2>
+        <a href="{% url 'accounts:signup' %}" class="inline-block px-10 py-4 bg-gradient-to-r from-accent to-rose-600 hover:opacity-95 text-white font-bold text-base rounded-2xl shadow-xl shadow-accent/30 transition transform active:scale-95">
+            Create Your Free Account
+        </a>
+    </section>
+</div>
 {% endblock %}

@@ -101,3 +101,56 @@ class ExerciseLog(models.Model):
 
     def __str__(self):
         return f"{self.session} - {self.workout_exercise.exercise}"
+
+
+class Challenge(models.Model):
+    """Calisthenics bounties, daily & weekly challenges (spec sections 22/37)."""
+    CADENCE_CHOICES = [
+        ("daily", "Daily Challenge"),
+        ("weekly", "Weekly Bounty"),
+        ("special", "Milestone Challenge"),
+    ]
+    CATEGORY_CHOICES = [
+        ("push", "Push Power"),
+        ("pull", "Pull Strength"),
+        ("core", "Iron Core"),
+        ("legs", "Legs & Explosiveness"),
+        ("skill", "Static & Skill"),
+        ("endurance", "Work Capacity"),
+    ]
+
+    title = models.CharField(max_length=150)
+    description = models.TextField()
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default="push")
+    cadence = models.CharField(max_length=20, choices=CADENCE_CHOICES, default="daily")
+    target_metric = models.CharField(max_length=50, help_text="e.g. '100 push-ups' or '3 min plank'")
+    target_value = models.PositiveIntegerField(default=100)
+    xp_reward = models.PositiveIntegerField(default=75)
+    badge_icon = models.CharField(max_length=10, default="🎯")
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-cadence", "-xp_reward"]
+
+    def __str__(self):
+        return f"[{self.get_cadence_display()}] {self.title} (+{self.xp_reward}XP)"
+
+
+class UserChallenge(models.Model):
+    """Tracks athlete completion/progress on challenges."""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="user_challenges"
+    )
+    challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE, related_name="user_records")
+    progress = models.PositiveIntegerField(default=0)
+    is_completed = models.BooleanField(default=False)
+    xp_claimed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ("user", "challenge")
+
+    def __str__(self):
+        return f"{self.user.username} - {self.challenge.title} ({self.progress}/{self.challenge.target_value})"
+

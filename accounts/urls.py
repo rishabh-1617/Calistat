@@ -11,6 +11,7 @@ urlpatterns = [
     path("onboarding/", views.onboarding, name="onboarding"),
     path("edit/", views.edit_profile, name="edit_profile"),
     path("discover/", views.discover_athletes, name="discover"),
+    path("athletes/", views.discover_athletes, name="discover_athletes"),
     path("u/<str:username>/", views.profile_detail, name="profile_detail"),
     path("u/<str:username>/follow/", views.toggle_follow, name="toggle_follow"),
     path("password-reset/", PasswordResetView.as_view(template_name="accounts/password_reset.html"), name="password_reset"),

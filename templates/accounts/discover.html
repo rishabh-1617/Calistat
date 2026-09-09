@@ -1,12 +1,53 @@
 {% extends "base.html" %}
+{% block title %}Discover Athletes — Calisfy{% endblock %}
+
 {% block content %}
-<h1 class="text-xl font-bold mb-4">Discover Athletes</h1>
-<div class="grid md:grid-cols-3 gap-4">
-    {% for p in profiles %}
-    <a href="{% url 'accounts:profile_detail' p.user.username %}" class="bg-card border border-border rounded-xl p-4 hover:border-accent">
-        <div class="font-semibold">{{ p.display_name|default:p.user.username }}</div>
-        <div class="text-xs text-gray-500">@{{ p.user.username }}</div>
-    </a>
-    {% endfor %}
+<div class="max-w-6xl mx-auto space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl sm:text-3xl font-black text-white font-display tracking-tight">Discover Athletes</h1>
+                <span class="bg-accent/15 border border-accent/30 text-accent text-xs font-bold px-2.5 py-1 rounded-full">
+                    Global Roster
+                </span>
+            </div>
+            <p class="text-xs sm:text-sm text-gray-400 mt-1">Connect with calisthenics practitioners, learn from their logs, and build your network.</p>
+        </div>
+    </div>
+
+    <!-- Athletes Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        {% for p in profiles %}
+            <a href="{% url 'accounts:profile_detail' p.user.username %}" class="bg-card border border-border hover:border-accent/50 rounded-2xl p-5 transition-all duration-200 flex items-center justify-between group shadow-lg">
+                <div class="flex items-center gap-3.5 min-w-0">
+                    {% if p.avatar %}
+                        <img src="{{ p.avatar.url }}" class="w-12 h-12 rounded-xl object-cover border border-gold/40 flex-shrink-0">
+                    {% else %}
+                        <div class="w-12 h-12 rounded-xl bg-border text-gold font-black flex items-center justify-center text-base border border-white/10 flex-shrink-0">
+                            {{ p.user.username|first|upper }}
+                        </div>
+                    {% endif %}
+
+                    <div class="min-w-0">
+                        <h3 class="font-bold text-sm sm:text-base text-white group-hover:text-accent transition truncate font-display">
+                            {{ p.display_name|default:p.user.username }}
+                        </h3>
+                        <p class="text-xs text-gray-400 truncate">@{{ p.user.username }}</p>
+                        <div class="text-[11px] text-gold font-semibold mt-0.5">
+                            {{ p.user.rank_state.current_rank.name|default:"Unranked" }} · {{ p.user.rank_state.cached_xp|default:0 }} XP
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-xs text-gray-500 group-hover:text-white transition flex-shrink-0 pl-2">
+                    View →
+                </div>
+            </a>
+        {% empty %}
+            <div class="col-span-full text-center py-16 px-4 bg-card/40 border border-border rounded-2xl">
+                <p class="text-sm text-gray-400">No athletes found.</p>
+            </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock %}

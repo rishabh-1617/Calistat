@@ -1,30 +1,170 @@
 {% extends "base.html" %}
 {% load skill_extras %}
-{% block title %}Skills — Calisfy{% endblock %}
+{% block title %}Skill Tree & Progressions — Calisfy{% endblock %}
+
 {% block content %}
-<h1 class="text-2xl font-bold mb-6">Skill Tree</h1>
-{% for cat in categories %}
-<div class="mb-6">
-    <h2 class="text-sm font-bold uppercase tracking-wide text-gray-500 mb-2">{{ cat.name }}</h2>
-    <div class="grid md:grid-cols-3 gap-3">
-        {% for skill in cat.skills.all %}
-        <a href="{% url 'skills:skill_detail' skill.slug %}" class="bg-card border border-border rounded-lg p-4 hover:border-accent flex justify-between items-center">
-            <div>
-                <div class="font-semibold">{{ skill.name }}</div>
-                <div class="text-xs text-gray-500">{{ skill.get_difficulty_level_display }} · Diff {{ skill.difficulty_score }}</div>
+<div class="space-y-6">
+    <!-- Header & Live Search -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl sm:text-3xl font-black text-white font-display tracking-tight">Calisthenics Skill Tree</h1>
+                <span class="bg-accent/15 border border-accent/30 text-accent text-xs font-bold px-2.5 py-1 rounded-full">
+                    100+ Skills
+                </span>
             </div>
-            <span class="text-lg">
-                {% with st=user_status|get_item:skill.id %}
-                    {% if st == "verified" %}✓
-                    {% elif st == "verification_pending" %}◑
-                    {% elif st == "self_recorded" %}◐
-                    {% elif st == "learning" %}◌
-                    {% else %}○{% endif %}
-                {% endwith %}
-            </span>
-        </a>
+            <p class="text-xs sm:text-sm text-gray-400 mt-1">
+                Explore progressive paths from fundamental holds to superhuman statics and dynamic flows.
+            </p>
+        </div>
+
+        <!-- Live Instant Search input -->
+        <div class="w-full md:w-72">
+            <div class="relative">
+                <input type="text" id="skill-search-input" placeholder="Search skills (e.g. Muscle-up)..." class="w-full pl-9 pr-4 py-2.5 bg-card border border-border rounded-xl text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-accent">
+                <svg class="w-4 h-4 text-gray-500 absolute left-3 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Filter Pills (Horizontal scroll on mobile) -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none select-none">
+        <button onclick="filterCategory('all')" class="cat-pill px-3.5 py-1.5 rounded-xl text-xs font-bold bg-accent text-white border border-accent flex-shrink-0 transition">
+            All Categories
+        </button>
+        {% for cat in categories %}
+            <button onclick="filterCategory('cat-{{ cat.id }}')" class="cat-pill px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-card hover:bg-border text-gray-300 hover:text-white border border-border flex-shrink-0 transition">
+                {{ cat.name }}
+            </button>
         {% endfor %}
     </div>
+
+    <!-- Skill Categories & Cards -->
+    <div id="skills-container" class="space-y-8">
+        {% for cat in categories %}
+            <div class="category-block cat-{{ cat.id }} space-y-3">
+                <div class="flex items-center justify-between border-b border-border/80 pb-2">
+                    <h2 class="text-sm font-bold uppercase tracking-wider text-gray-300 font-display flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-accent"></span>
+                        <span>{{ cat.name }}</span>
+                    </h2>
+                    <span class="text-xs text-gray-500 font-medium">{{ cat.skills.count }} movements</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {% for skill in cat.skills.all %}
+                        {% with st=user_status|get_item:skill.id %}
+                        <a href="{% url 'skills:skill_detail' skill.slug %}" class="skill-card bg-card border rounded-2xl p-4 hover:border-accent/60 transition-all duration-150 flex items-center justify-between group
+                            {% if st == 'verified' %}
+                                border-gold/40 bg-card/70
+                            {% elif st == 'learning' or st == 'verification_pending' %}
+                                border-accent/40
+                            {% else %}
+                                border-border
+                            {% endif %}"
+                            data-name="{{ skill.name|lower }}"
+                            data-cat="cat-{{ cat.id }}">
+                            
+                            <div class="min-w-0 pr-3">
+                                <h3 class="font-bold text-sm text-white group-hover:text-accent transition truncate font-display">
+                                    {{ skill.name }}
+                                </h3>
+                                <div class="flex items-center gap-2 mt-1 text-[11px] text-gray-400">
+                                    <span class="px-1.5 py-0.5 rounded bg-bg border border-border text-[10px]">
+                                        Diff {{ skill.difficulty_score }}/10
+                                    </span>
+                                    <span class="truncate">{{ skill.get_difficulty_level_display }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Status Badge / Icon -->
+                            <div class="flex-shrink-0">
+                                {% if st == "verified" %}
+                                    <span class="w-7 h-7 rounded-full bg-gold/15 text-gold border border-gold/30 flex items-center justify-center text-xs font-bold" title="Verified Athlete Skill">
+                                        ✓
+                                    </span>
+                                {% elif st == "verification_pending" %}
+                                    <span class="w-7 h-7 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 flex items-center justify-center text-xs font-bold" title="Review In Progress">
+                                        ⏳
+                                    </span>
+                                {% elif st == "learning" %}
+                                    <span class="w-7 h-7 rounded-full bg-accent/15 text-accent border border-accent/30 flex items-center justify-center text-xs font-bold" title="Learning">
+                                        ●
+                                    </span>
+                                {% else %}
+                                    <span class="w-7 h-7 rounded-full bg-bg border border-border text-gray-600 flex items-center justify-center text-xs" title="Not Started">
+                                        ○
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </a>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="no-skills-found" class="hidden text-center py-16 px-4 bg-card/40 border border-border rounded-2xl">
+        <p class="text-sm text-gray-400">No skills match your search query.</p>
+    </div>
 </div>
-{% endfor %}
+
+<!-- Instant Client Search & Filter Script -->
+<script>
+    const searchInput = document.getElementById('skill-search-input');
+    const skillCards = document.querySelectorAll('.skill-card');
+    const categoryBlocks = document.querySelectorAll('.category-block');
+    const noSkillsEl = document.getElementById('no-skills-found');
+    let activeCategory = 'all';
+
+    function runFilter() {
+        const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+        let totalVisible = 0;
+
+        categoryBlocks.forEach(block => {
+            const isCatMatch = (activeCategory === 'all' || block.classList.contains(activeCategory));
+            let visibleInCat = 0;
+
+            block.querySelectorAll('.skill-card').forEach(card => {
+                const name = card.getAttribute('data-name') || '';
+                const matchesSearch = (!query || name.includes(query));
+                if (isCatMatch && matchesSearch) {
+                    card.style.display = 'flex';
+                    visibleInCat++;
+                    totalVisible++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            if (visibleInCat > 0) {
+                block.style.display = 'block';
+            } else {
+                block.style.display = 'none';
+            }
+        });
+
+        if (noSkillsEl) {
+            noSkillsEl.classList.toggle('hidden', totalVisible > 0);
+        }
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', runFilter);
+    }
+
+    function filterCategory(catId) {
+        activeCategory = catId;
+        document.querySelectorAll('.cat-pill').forEach(btn => {
+            btn.classList.remove('bg-accent', 'text-white', 'border-accent');
+            btn.classList.add('bg-card', 'text-gray-300', 'border-border');
+        });
+        event.currentTarget.classList.add('bg-accent', 'text-white', 'border-accent');
+        event.currentTarget.classList.remove('bg-card', 'text-gray-300', 'border-border');
+        runFilter();
+    }
+</script>
 {% endblock %}

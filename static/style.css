@@ -1,8 +1,89 @@
-input, textarea, select {
+/* Calisfy Athletic Dark Theme & Responsive Styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap');
+
+:root {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Outfit', system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #0b0b0f;
+  color: #f1f1f5;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
   background: #0b0b0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #26262f;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #383844;
+}
+
+/* Input Fields */
+input, textarea, select {
+  background: #101017;
   border: 1px solid #26262f;
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  border-radius: 0.625rem;
+  padding: 0.625rem 0.875rem;
   color: #fff;
   width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #e63946;
+  box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
+}
+
+/* Glassmorphism Cards */
+.glass-panel {
+  background: rgba(21, 21, 28, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Glow effects */
+.glow-accent {
+  box-shadow: 0 0 20px -5px rgba(230, 57, 70, 0.35);
+}
+.glow-gold {
+  box-shadow: 0 0 20px -5px rgba(212, 175, 55, 0.3);
+}
+
+/* Mobile drawer transition */
+#mobile-drawer {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#mobile-backdrop {
+  transition: opacity 0.3s ease;
+}
+
+/* Pulse badge animation */
+@keyframes soft-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.15); opacity: 0.85; }
+}
+.animate-soft-pulse {
+  animation: soft-pulse 2s infinite ease-in-out;
+}
+
+/* Touch active micro-animations */
+.tap-effect:active {
+  transform: scale(0.98);
 }
