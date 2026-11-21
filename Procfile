@@ -1,2 +1,1 @@
-web: gunicorn calisfy_project.wsgi --log-file -
-release: python manage.py migrate
+web: uvicorn main:app --host 0.0.0.0 --port ${PORT:-8000}

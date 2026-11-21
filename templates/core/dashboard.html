@@ -28,6 +28,7 @@
         </div>
     </div>
 
+
     <!-- Rank Progress Card -->
     <div class="bg-gradient-to-br from-card via-card to-card/70 border border-border/80 rounded-2xl p-5 sm:p-6 shadow-xl relative overflow-hidden">
         <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-accent/10 rounded-full blur-2xl pointer-events-none"></div>
@@ -100,24 +101,26 @@
 
                 <div class="space-y-2.5">
                     {% for us in current_skills %}
-                        <a href="{% url 'skills:skill_detail' us.skill.slug %}" class="group p-3.5 bg-bg/60 border border-border/70 hover:border-accent/50 rounded-xl flex items-center justify-between transition-all duration-150">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center text-xs font-bold text-accent group-hover:scale-105 transition-transform">
+                        <div class="p-3.5 bg-bg/60 border border-border/70 hover:border-accent/50 rounded-2xl flex items-center justify-between transition-all duration-150">
+                            <a href="{% url 'skills:skill_detail' us.skill.slug %}" class="flex items-center gap-3 min-w-0 flex-1 group">
+                                <div class="w-8 h-8 rounded-xl bg-card border border-border flex items-center justify-center text-xs font-black text-accent group-hover:scale-105 transition-transform flex-shrink-0">
                                     {{ forloop.counter }}
                                 </div>
-                                <div>
-                                    <div class="font-bold text-sm text-white group-hover:text-accent transition">
+                                <div class="min-w-0">
+                                    <div class="font-bold text-sm text-white group-hover:text-accent transition truncate">
                                         {{ us.skill.name }}
                                     </div>
-                                    <div class="text-[11px] text-gray-500">
+                                    <div class="text-[11px] text-gray-500 truncate">
                                         {{ us.skill.get_difficulty_level_display }} · Difficulty {{ us.skill.difficulty_score }}/10
                                     </div>
                                 </div>
+                            </a>
+                            <div class="flex items-center gap-2 flex-shrink-0 ml-2">
+                                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                                    In Progress
+                                </span>
                             </div>
-                            <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                                In Progress
-                            </span>
-                        </a>
+                        </div>
                     {% empty %}
                         <div class="text-center py-8 px-4 bg-bg/40 border border-border/50 rounded-xl">
                             <p class="text-sm text-gray-400 mb-2">No active skill progressions right now.</p>

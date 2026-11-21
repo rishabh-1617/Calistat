@@ -67,6 +67,76 @@ class Skill(models.Model):
     def get_absolute_url(self):
         return reverse("skills:skill_detail", args=[self.slug])
 
+    def get_motion_type(self):
+        """Map skill to biomechanical animation archetype for interactive visualizer."""
+        n = self.name.lower()
+        if 'diamond push' in n: return 'diamond_pushup'
+        if 'pike push' in n: return 'pike_pushup'
+        if 'decline push' in n: return 'decline_pushup'
+        if 'archer push' in n: return 'archer_pushup'
+        if 'pseudo planche' in n or 'planche lean' in n: return 'planche'
+        if 'handstand push' in n or 'hspu' in n: return 'hspu'
+        if 'push-up' in n or 'pushup' in n or 'push up' in n: return 'pushup'
+        if 'muscle-up' in n or 'muscle up' in n: return 'muscleup'
+        if 'chin-up' in n or 'chin up' in n: return 'chinup'
+        if 'scapular pull' in n or 'active hang' in n: return 'scapular_pull'
+        if 'dead hang' in n or 'hang' in n: return 'dead_hang'
+        if 'australian' in n or 'row' in n: return 'australian_row'
+        if 'pull-up' in n or 'pullup' in n or 'pull up' in n: return 'pullup'
+        if 'dip' in n: return 'dips'
+        if 'pistol' in n or 'shrimp' in n: return 'pistol_squat'
+        if 'bulgarian' in n or 'lunge' in n or 'step-up' in n: return 'lunge'
+        if 'squat' in n or 'wall sit' in n: return 'squat'
+        if 'calf' in n: return 'calf_raise'
+        if 'nordic' in n or 'leg extension' in n: return 'nordic_curl'
+        if 'glute' in n or 'bridge' in n: return 'glute_bridge'
+        if 'front lever' in n or 'fl hold' in n: return 'front_lever'
+        if 'back lever' in n: return 'back_lever'
+        if 'planche' in n or 'maltese' in n or 'victorian' in n: return 'planche'
+        if 'handstand' in n or 'headstand' in n: return 'handstand'
+        if 'crow' in n or 'elbow lever' in n: return 'crow_pose'
+        if 'l-sit' in n or 'lsit' in n or 'v-sit' in n or 'manna' in n: return 'lsit'
+        if 'dragon flag' in n: return 'dragon_flag'
+        if 'leg raise' in n or 'knee raise' in n or 'toes to bar' in n or 'windshield' in n: return 'hanging_leg_raise'
+        if 'hollow' in n or 'dead bug' in n: return 'hollow_body'
+        if 'side plank' in n: return 'side_plank'
+        if 'plank' in n or 'ab wheel' in n or 'flag' in n: return 'plank'
+        if 'stretch' in n or 'skin the cat' in n or 'kipping' in n or 'swing' in n: return 'mobility'
+        return 'pushup'
+
+    def get_embed_url(self):
+        """Convert standard YouTube links to responsive embed URLs."""
+        if not self.tutorial_video_url:
+            return ""
+        url = self.tutorial_video_url
+        if "watch?v=" in url:
+            video_id = url.split("watch?v=")[1].split("&")[0]
+            return f"https://www.youtube.com/embed/{video_id}"
+        elif "youtu.be/" in url:
+            video_id = url.split("youtu.be/")[1].split("?")[0]
+            return f"https://www.youtube.com/embed/{video_id}"
+        elif "youtube.com/embed/" in url:
+            return url
+        return url
+
+    def get_target_muscles(self):
+        """Return target muscle tags for UI badges."""
+        if self.muscle_groups:
+            return [m.strip() for m in self.muscle_groups.split(",") if m.strip()]
+        return ['Calisthenics Power', 'Full Body Control']
+
+    def get_form_cues(self):
+        """Return strict form cues."""
+        if self.technique_instructions:
+            lines = [line.strip() for line in self.technique_instructions.split('\n') if line.strip()]
+            if lines:
+                return lines[:3]
+        return [
+            'Maintain complete full-body tension and joint lockout.',
+            'Breathe rhythmically throughout the movement duration.',
+            'Focus on flawless execution before adding volume.'
+        ]
+
 
 class VerificationRequirement(models.Model):
     """

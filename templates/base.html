@@ -68,6 +68,8 @@
             </a>
         </div>
 
+
+
         <!-- Navigation Links -->
         <nav class="flex-1 px-3 py-3 space-y-1 overflow-y-auto text-sm font-medium">
             <a href="{% url 'core:dashboard' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all duration-150 hover:bg-white/5 hover:text-white {% if request.resolver_match.view_name == 'core:dashboard' %}bg-white/10 text-white font-semibold border-l-2 border-accent{% else %}text-gray-400{% endif %}">
@@ -213,11 +215,13 @@
             </button>
         </div>
 
-        <div class="p-4">
+        <div class="p-4 pb-2">
             <a href="{% url 'training:program_list' %}" class="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-accent to-rose-600 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-md shadow-accent/20">
                 ⚡ Start Training
             </a>
         </div>
+
+
 
         <nav class="flex-1 px-3 py-2 space-y-1 overflow-y-auto text-sm font-medium">
             <a href="{% url 'core:dashboard' %}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-white/5 hover:text-white {% if request.resolver_match.view_name == 'core:dashboard' %}bg-white/10 text-white font-semibold{% else %}text-gray-400{% endif %}">
@@ -374,5 +378,6 @@
             });
         });
     </script>
+
 </body>
 </html>

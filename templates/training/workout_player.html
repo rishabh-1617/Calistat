@@ -1,134 +1,244 @@
 {% extends "base.html" %}
-{% block title %}Playing: {{ workout.title }} — Calisfy{% endblock %}
+{% block title %}Session: {{ workout.title }} — Calisfy{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto pb-16">
-    <!-- Workout Header -->
-    <div class="bg-card border border-border rounded-2xl p-5 sm:p-6 mb-6 shadow-xl">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+<div class="max-w-4xl mx-auto pb-20 space-y-6 select-none">
+    <!-- Breadcrumb -->
+    <div class="flex items-center justify-between">
+        <a href="{% url 'training:program_list' %}" class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-400 hover:text-white transition">
+            <span>←</span> Exit to Workouts
+        </a>
+        <div class="flex items-center gap-2">
+            <button id="sound-toggle-btn" class="px-3 py-1.5 rounded-xl bg-card border border-border text-xs font-semibold text-gray-300 hover:text-white flex items-center gap-1.5 transition">
+                <span id="sound-icon">🔊</span>
+                <span id="sound-label">Audio On</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Active Session Hero Header -->
+    <div class="bg-gradient-to-br from-card via-card to-card/75 border border-border/90 rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden">
+        <div class="absolute -right-8 -top-8 w-44 h-44 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
             <div>
-                <span class="text-xs font-bold uppercase tracking-wider text-accent">Active Session</span>
-                <h1 class="text-2xl sm:text-3xl font-black text-white font-display mt-0.5">{{ workout.title }}</h1>
-                <div class="flex items-center gap-3 text-xs text-gray-400 mt-1.5">
-                    <span>⏱️ ~{{ workout.estimated_duration_minutes }} min</span>
+                <div class="flex items-center gap-2 mb-1.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-accent animate-pulse"></span>
+                    <span class="text-xs font-black uppercase tracking-widest text-accent font-display">Live Workout Session</span>
+                </div>
+                <h1 class="text-2xl sm:text-4xl font-black text-white font-display tracking-tight">{{ workout.title }}</h1>
+                <div class="flex items-center gap-3 text-xs text-gray-400 mt-2 flex-wrap">
+                    <span class="flex items-center gap-1">⏱️ ~{{ workout.estimated_duration_minutes }} min</span>
                     <span>•</span>
-                    <span>💪 {{ exercises|length }} Exercises</span>
+                    <span class="flex items-center gap-1">💪 {{ exercises|length }} Exercises</span>
                     <span>•</span>
-                    <span class="text-gold font-bold">+50 XP upon completion</span>
+                    <span class="text-gold font-bold flex items-center gap-1">🏆 +50 XP Reward</span>
                 </div>
             </div>
 
-            <!-- Progress status indicator -->
-            <div class="bg-bg/80 border border-border px-4 py-2 rounded-xl text-center self-start sm:self-auto">
-                <div id="completed-sets-counter" class="text-lg font-black text-white">0</div>
-                <div class="text-[10px] uppercase font-semibold text-gray-400 tracking-wider">Sets Finished</div>
+            <!-- Total Sets Progress HUD -->
+            <div class="bg-bg/90 border border-border/80 p-4 rounded-2xl flex sm:flex-col items-center justify-between sm:justify-center min-w-[130px] shadow-lg">
+                <div class="text-left sm:text-center">
+                    <div class="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Progress</div>
+                    <div class="text-2xl sm:text-3xl font-black text-white font-display mt-0.5">
+                        <span id="completed-sets-counter">0</span><span class="text-xs text-gray-500 font-normal"> / <span id="total-sets-counter">0</span> sets</span>
+                    </div>
+                </div>
+                <div class="w-24 sm:w-full h-1.5 bg-card border border-border/60 rounded-full overflow-hidden mt-2">
+                    <div id="session-progress-bar" class="h-full bg-gradient-to-r from-accent to-gold rounded-full transition-all duration-500" style="width: 0%;"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Interactive Rest Timer Widget -->
-    <div class="bg-gradient-to-br from-card via-card to-card/80 border border-border rounded-2xl p-5 mb-6 text-center sticky top-16 z-20 backdrop-blur-md shadow-2xl">
-        <div class="text-xs font-bold uppercase tracking-widest text-gray-400 mb-1">Rest Interval Timer</div>
-        
-        <div id="timer-display" class="text-4xl sm:text-5xl font-black text-white font-display tracking-tight my-1">
-            01:00
+    <!-- AI Live Session Form & Recovery Box -->
+    <div class="bg-gradient-to-r from-accent/15 via-card to-card border border-accent/30 rounded-2xl p-4 sm:p-5 flex items-center justify-between gap-4 shadow-xl">
+        <div class="flex items-center gap-3.5">
+            <div class="relative flex-shrink-0">
+                <div class="w-12 h-12 rounded-2xl bg-accent/20 border-2 border-accent/50 flex items-center justify-center text-accent text-xl shadow-lg shadow-accent/20">
+                    💡
+                </div>
+                <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-card flex items-center justify-center text-[8px] font-black text-black">✓</span>
+            </div>
+            <div>
+                <div class="text-xs font-black uppercase tracking-widest text-accent font-display flex items-center gap-1.5">
+                    <span>Form & Recovery Coach</span>
+                    <span class="text-[10px] text-gray-500 font-normal">· Biomechanics Active</span>
+                </div>
+                <p id="titan-live-tip" class="text-xs sm:text-sm text-gray-200 mt-0.5 font-medium leading-relaxed">
+                    "Control the eccentric descent for 2–3 seconds. Lock out cleanly at the peak of each repetition."
+                </p>
+            </div>
         </div>
-
-        <div class="flex items-center justify-center gap-2 mt-3 flex-wrap">
-            <button id="timer-toggle-btn" class="px-5 py-2 bg-accent hover:bg-accentHover text-white text-xs font-bold rounded-xl shadow-md shadow-accent/20 transition flex items-center gap-1.5">
-                <span id="timer-toggle-icon">▶</span>
-                <span id="timer-toggle-label">Start Timer</span>
-            </button>
-            <button id="timer-add-btn" class="px-3.5 py-2 bg-card hover:bg-border border border-border text-gray-300 hover:text-white text-xs font-semibold rounded-xl transition">
-                +30s
-            </button>
-            <button id="timer-reset-btn" class="px-3.5 py-2 bg-card hover:bg-border border border-border text-gray-400 hover:text-white text-xs font-semibold rounded-xl transition">
-                Reset
-            </button>
+        <div class="hidden sm:flex items-center gap-1.5 text-[11px] font-bold text-accent bg-bg px-3 py-1.5 rounded-xl border border-accent/30">
+            <span>⚡ Strict Form Mode</span>
         </div>
     </div>
 
-    <!-- Exercise List with Interactive Set Trackers -->
+    <!-- Interactive Sticky Rest Interval HUD -->
+    <div class="sticky top-16 z-30 bg-card/95 backdrop-blur-xl border border-border rounded-2xl p-4 sm:p-5 shadow-2xl transition-all">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <!-- Timer Display -->
+            <div class="flex items-center gap-4">
+                <div class="relative w-14 h-14 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-full h-full -rotate-90">
+                        <circle cx="28" cy="28" r="23" stroke="#232332" stroke-width="4" fill="none" />
+                        <circle id="timer-svg-circle" cx="28" cy="28" r="23" stroke="#e63946" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="144.5" stroke-dashoffset="0" class="transition-all duration-1000" />
+                    </svg>
+                    <span id="timer-mini-icon" class="absolute text-sm">⏱️</span>
+                </div>
+                <div>
+                    <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Rest Timer</div>
+                    <div id="timer-display" class="text-3xl sm:text-4xl font-black text-white font-display tracking-tight leading-none mt-0.5">
+                        01:00
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer Action Buttons -->
+            <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                <button id="timer-toggle-btn" class="px-5 py-2.5 bg-accent hover:bg-accentHover text-white text-xs font-bold rounded-xl shadow-lg shadow-accent/25 transition-all transform active:scale-95 flex items-center gap-2">
+                    <span id="timer-toggle-icon">▶</span>
+                    <span id="timer-toggle-label">Start Timer</span>
+                </button>
+                <button id="timer-add-btn" class="px-3.5 py-2.5 bg-bg hover:bg-border border border-border text-gray-300 hover:text-white text-xs font-bold rounded-xl transition active:scale-95">
+                    +30s
+                </button>
+                <button id="timer-reset-btn" class="px-3.5 py-2.5 bg-bg hover:bg-border border border-border text-gray-400 hover:text-white text-xs font-semibold rounded-xl transition active:scale-95">
+                    Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exercise Workout Cards -->
     <div class="space-y-4">
         {% for we in exercises %}
-            <div class="bg-card border border-border rounded-2xl p-5 transition-all duration-200" id="exercise-card-{{ we.id }}">
-                <div class="flex items-start justify-between gap-3 mb-2">
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-gray-300 flex items-center justify-center">
-                                {{ forloop.counter }}
-                            </span>
-                            <h3 class="font-bold text-base sm:text-lg text-white">{{ we.exercise.name }}</h3>
-                        </div>
-                        <span class="text-[11px] font-semibold uppercase tracking-wider text-gray-400 ml-8 block mt-0.5">
-                            {{ we.get_section_display }}
+            <div class="bg-card border border-border rounded-3xl p-5 sm:p-6 transition-all duration-200 card-shine" id="exercise-card-{{ we.id }}">
+                <!-- Exercise Header Row -->
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
+                    <div class="flex items-start gap-3">
+                        <span class="w-8 h-8 rounded-xl bg-bg border border-border text-xs font-black text-white flex items-center justify-center flex-shrink-0 mt-0.5 font-display">
+                            {{ forloop.counter }}
                         </span>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <h3 class="font-black text-lg sm:text-xl text-white font-display">{{ we.exercise.name }}</h3>
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-accent/15 text-accent border border-accent/25">
+                                    {{ we.get_section_display }}
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-gray-400 mt-1">
+                                <span>🎯 <strong class="text-white">{{ we.sets }} sets × {{ we.reps }}</strong></span>
+                                <span>•</span>
+                                <span>⏱️ {{ we.rest_seconds }}s rest interval</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <button onclick="setRestDuration({{ we.rest_seconds }})" class="text-xs px-2.5 py-1 rounded-lg bg-bg border border-border text-gray-400 hover:text-accent hover:border-accent/40 transition flex items-center gap-1">
-                        ⏱️ {{ we.rest_seconds }}s rest
-                    </button>
+                    <!-- Video Tutorial Trigger Button -->
+                    {% if we.exercise.get_embed_url %}
+                    <div class="flex items-center gap-2 self-start sm:self-auto ml-11 sm:ml-0">
+                        <button type="button" onclick="toggleMotionCoach('{{ we.id }}')" class="px-3.5 py-2 rounded-xl bg-bg hover:bg-border border border-border text-xs font-bold text-gray-200 hover:text-white flex items-center gap-1.5 transition shadow-sm">
+                            <span>🎬 Video Form</span>
+                            <span class="text-[10px] text-gray-400 arrow-icon">▼</span>
+                        </button>
+                    </div>
+                    {% endif %}
                 </div>
 
                 {% if we.exercise.description %}
-                    <p class="text-xs text-gray-400 mb-3 ml-8 leading-relaxed">{{ we.exercise.description }}</p>
+                    <p class="text-xs text-gray-400 mb-4 ml-0 sm:ml-11 leading-relaxed">{{ we.exercise.description }}</p>
                 {% endif %}
 
-                <!-- Target prescription banner -->
-                <div class="ml-0 sm:ml-8 p-3 rounded-xl bg-bg/60 border border-border/60 flex items-center justify-between text-xs mb-3">
-                    <span class="text-gray-400">Prescription: <strong class="text-white">{{ we.sets }} sets × {{ we.reps }}</strong></span>
-                    <span class="text-gray-500">Tap sets to check off</span>
+                <!-- Collapsible Video Tutorial Section -->
+                {% if we.exercise.get_embed_url %}
+                <div id="motion-coach-{{ we.id }}" class="ml-0 sm:ml-11 mb-5 transition-all duration-300 hidden">
+                    <div class="rounded-2xl bg-black border border-border overflow-hidden">
+                        <div class="relative w-full aspect-video">
+                            <iframe src="{{ we.exercise.get_embed_url }}"
+                                    class="w-full h-full border-0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowfullscreen></iframe>
+                        </div>
+                    </div>
                 </div>
+                {% endif %}
 
-                <!-- Set checklist buttons -->
-                <div class="ml-0 sm:ml-8 flex flex-wrap gap-2">
-                    <!-- Generate set checkoff buttons up to we.sets -->
-                    {% with ''|center:we.sets as range %}
-                    {% for _ in range %}
-                        <button type="button" onclick="toggleSet(this, {{ we.rest_seconds }})" class="set-check-btn px-3.5 py-2 rounded-xl bg-card hover:bg-border border border-border text-xs font-bold text-gray-300 transition-all flex items-center gap-1.5 select-none">
-                            <span class="check-icon opacity-40">○</span>
-                            <span>Set {{ forloop.counter }}</span>
+                <!-- Set Tracker Buttons -->
+                <div class="ml-0 sm:ml-11 pt-3 border-t border-border/60">
+                    <div class="flex items-center justify-between text-xs mb-2.5">
+                        <span class="text-gray-400 font-semibold">Track Sets: <span class="text-gray-500 font-normal">Tap set as you complete it to trigger rest countdown</span></span>
+                        <button onclick="setRestDuration({{ we.rest_seconds }})" class="text-[11px] text-accent hover:underline">
+                            Set timer: {{ we.rest_seconds }}s
                         </button>
-                    {% endfor %}
-                    {% endwith %}
+                    </div>
+
+                    <div class="flex flex-wrap gap-2.5">
+                        {% with ''|center:we.sets as range %}
+                        {% for _ in range %}
+                            <button type="button"
+                                    onclick="toggleSet(this, {{ we.rest_seconds }})"
+                                    class="set-check-btn px-4 py-2.5 rounded-xl bg-bg hover:bg-card border border-border text-xs font-black text-gray-300 hover:text-white transition-all transform active:scale-95 flex items-center gap-2 select-none shadow-sm">
+                                <span class="check-icon opacity-40 text-sm">○</span>
+                                <span>Set {{ forloop.counter }}</span>
+                            </button>
+                        {% endfor %}
+                        {% endwith %}
+                    </div>
                 </div>
             </div>
         {% endfor %}
     </div>
 
     <!-- Complete Workout Action Bar -->
-    <form method="post" action="{% url 'training:complete_workout' workout.pk %}" class="mt-8">
+    <form method="post" action="{% url 'training:complete_workout' workout.pk %}" class="mt-10">
         {% csrf_token %}
-        <button type="submit" class="w-full py-4 px-6 bg-gradient-to-r from-accent to-rose-600 hover:opacity-95 text-white font-bold text-sm sm:text-base rounded-2xl shadow-xl shadow-accent/25 transition transform active:scale-95 flex items-center justify-center gap-2">
+        <button type="submit" id="finish-workout-btn" class="w-full py-4 px-6 bg-gradient-to-r from-accent via-rose-600 to-amber-500 hover:opacity-95 text-white font-black text-base sm:text-lg rounded-2xl shadow-2xl shadow-accent/30 transition transform active:scale-98 flex items-center justify-center gap-2.5">
             <span>✓ Finish & Log Workout (+50 XP)</span>
         </button>
     </form>
 </div>
 
-<!-- JavaScript Workout Companion Logic -->
+<!-- Workout Companion Audio & Motion Logic -->
 <script>
     let restTimerSeconds = 60;
     let timerRemaining = 60;
     let timerInterval = null;
     let isTimerRunning = false;
     let completedSetsCount = 0;
+    let audioEnabled = true;
 
-    // Audio beep using Web Audio API
-    function playBeep() {
+    // Web Audio Synthesizer for Training Cues
+    function playTone(freq, duration, type = 'sine', gainVal = 0.15) {
+        if (!audioEnabled) return;
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
+            osc.type = type;
             osc.connect(gain);
             gain.connect(ctx.destination);
-            osc.frequency.setValueAtTime(880, ctx.currentTime);
-            gain.gain.setValueAtTime(0.15, ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+            osc.frequency.setValueAtTime(freq, ctx.currentTime);
+            gain.gain.setValueAtTime(gainVal, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
             osc.start();
-            osc.stop(ctx.currentTime + 0.5);
+            osc.stop(ctx.currentTime + duration);
         } catch (e) {
-            console.log('Audio not allowed without gesture', e);
+            console.log('Audio gesture needed');
         }
+    }
+
+    function playSetCompletedChime() {
+        playTone(587.33, 0.15, 'sine', 0.2); // D5
+        setTimeout(() => playTone(880, 0.35, 'triangle', 0.25), 100); // A5
+    }
+
+    function playRestTimerBeep() {
+        // High alert buzzer for end of rest
+        playTone(880, 0.15, 'square', 0.18);
+        setTimeout(() => playTone(880, 0.15, 'square', 0.18), 200);
+        setTimeout(() => playTone(1174.66, 0.45, 'triangle', 0.25), 400);
     }
 
     function formatTime(secs) {
@@ -140,24 +250,39 @@
     function updateTimerDisplay() {
         const el = document.getElementById('timer-display');
         if (el) el.innerText = formatTime(timerRemaining);
+
+        // Update circular ring stroke-dashoffset
+        const circle = document.getElementById('timer-svg-circle');
+        if (circle) {
+            const totalDash = 144.5;
+            const pct = Math.max(0, Math.min(1, timerRemaining / Math.max(1, restTimerSeconds)));
+            circle.style.strokeDashoffset = totalDash * (1 - pct);
+        }
     }
 
     function startTimer() {
         if (isTimerRunning) return;
         isTimerRunning = true;
-        document.getElementById('timer-toggle-icon').innerText = '⏸';
-        document.getElementById('timer-toggle-label').innerText = 'Pause';
-        
+        const icon = document.getElementById('timer-toggle-icon');
+        const label = document.getElementById('timer-toggle-label');
+        if (icon) icon.innerText = '⏸';
+        if (label) label.innerText = 'Pause';
+
         timerInterval = setInterval(() => {
             if (timerRemaining > 0) {
                 timerRemaining--;
                 updateTimerDisplay();
+                if (timerRemaining <= 3 && timerRemaining > 0) {
+                    playTone(440, 0.1, 'sine', 0.1); // Countdown warning tick
+                }
                 if (timerRemaining === 0) {
-                    playBeep();
+                    playRestTimerBeep();
                     pauseTimer();
                     const el = document.getElementById('timer-display');
-                    if (el) el.classList.add('text-emerald-400');
-                    setTimeout(() => el?.classList.remove('text-emerald-400'), 3000);
+                    if (el) {
+                        el.classList.add('text-emerald-400');
+                        setTimeout(() => el?.classList.remove('text-emerald-400'), 3500);
+                    }
                 }
             } else {
                 pauseTimer();
@@ -168,8 +293,10 @@
     function pauseTimer() {
         isTimerRunning = false;
         clearInterval(timerInterval);
-        document.getElementById('timer-toggle-icon').innerText = '▶';
-        document.getElementById('timer-toggle-label').innerText = 'Start Timer';
+        const icon = document.getElementById('timer-toggle-icon');
+        const label = document.getElementById('timer-toggle-label');
+        if (icon) icon.innerText = '▶';
+        if (label) label.innerText = 'Start Timer';
     }
 
     function setRestDuration(secs) {
@@ -200,34 +327,96 @@
         updateTimerDisplay();
     });
 
+    // Sound toggle
+    document.getElementById('sound-toggle-btn')?.addEventListener('click', function() {
+        audioEnabled = !audioEnabled;
+        const icon = document.getElementById('sound-icon');
+        const label = document.getElementById('sound-label');
+        if (audioEnabled) {
+            if (icon) icon.innerText = '🔊';
+            if (label) label.innerText = 'Audio On';
+        } else {
+            if (icon) icon.innerText = '🔇';
+            if (label) label.innerText = 'Muted';
+        }
+    });
+
+    // Toggle Motion Coach Drawer
+    function toggleMotionCoach(id) {
+        const coach = document.getElementById(`motion-coach-${id}`);
+        const card = document.getElementById(`exercise-card-${id}`);
+        const arrow = card ? card.querySelector('.arrow-icon') : null;
+        if (!coach) return;
+        const isHidden = coach.classList.contains('hidden');
+        if (isHidden) {
+            coach.classList.remove('hidden');
+            if (arrow) arrow.innerText = '▲';
+        } else {
+            coach.classList.add('hidden');
+            if (arrow) arrow.innerText = '▼';
+        }
+    }
+
+    const TITAN_TIPS = [
+        "Clean set! Focus on deep diaphragmatic breathing during this rest interval.",
+        "Solid lockout. Keep your shoulder girdle depressed and packed for the next set.",
+        "Discipline over ego. Full range of motion builds bulletproof tendons.",
+        "Maintain total hollow-body tension — zero energy leaks, pure power.",
+        "Feel the prime mover muscles contract on every concentric drive. Superhuman form!"
+    ];
+    let tipIdx = 0;
+
+    // Interactive Set Checkoff
     function toggleSet(btn, restSeconds) {
         const isDone = btn.classList.contains('bg-emerald-500/20');
         const icon = btn.querySelector('.check-icon');
 
         if (isDone) {
-            btn.classList.remove('bg-emerald-500/20', 'border-emerald-500/40', 'text-emerald-300');
-            btn.classList.add('bg-card', 'border-border', 'text-gray-300');
+            btn.classList.remove('bg-emerald-500/20', 'border-emerald-500/50', 'text-emerald-300');
+            btn.classList.add('bg-bg', 'border-border', 'text-gray-300');
             if (icon) {
                 icon.innerText = '○';
                 icon.classList.add('opacity-40');
             }
             completedSetsCount = Math.max(0, completedSetsCount - 1);
         } else {
-            btn.classList.remove('bg-card', 'border-border', 'text-gray-300');
-            btn.classList.add('bg-emerald-500/20', 'border-emerald-500/40', 'text-emerald-300');
+            btn.classList.remove('bg-bg', 'border-border', 'text-gray-300');
+            btn.classList.add('bg-emerald-500/20', 'border-emerald-500/50', 'text-emerald-300');
             if (icon) {
                 icon.innerText = '✓';
                 icon.classList.remove('opacity-40');
             }
             completedSetsCount++;
-            // Auto trigger rest timer
+            playSetCompletedChime();
             setRestDuration(restSeconds);
+
+            // Dynamic Titan Live Coaching Tip
+            const tipEl = document.getElementById('titan-live-tip');
+            if (tipEl) {
+                tipIdx = (tipIdx + 1) % TITAN_TIPS.length;
+                tipEl.innerText = `"${TITAN_TIPS[tipIdx]}"`;
+            }
         }
 
         const counter = document.getElementById('completed-sets-counter');
         if (counter) counter.innerText = completedSetsCount;
+
+        // Update progress bar
+        const totalSets = document.querySelectorAll('.set-check-btn').length;
+        const prog = document.getElementById('session-progress-bar');
+        if (prog && totalSets > 0) {
+            const pct = Math.min(100, Math.round((completedSetsCount / totalSets) * 100));
+            prog.style.width = pct + '%';
+        }
     }
 
-    updateTimerDisplay();
+    // Initialize counters
+    document.addEventListener('DOMContentLoaded', function() {
+        const totalSets = document.querySelectorAll('.set-check-btn').length;
+        const totalCounter = document.getElementById('total-sets-counter');
+        if (totalCounter) totalCounter.innerText = totalSets;
+
+        updateTimerDisplay();
+    });
 </script>
 {% endblock %}

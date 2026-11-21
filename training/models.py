@@ -15,6 +15,190 @@ class Exercise(models.Model):
     def __str__(self):
         return self.name
 
+    def get_motion_type(self):
+        """Map exercise to biomechanical animation archetype for interactive visualizer."""
+        n = self.name.lower()
+        if 'diamond push' in n: return 'diamond_pushup'
+        if 'pike push' in n: return 'pike_pushup'
+        if 'decline push' in n: return 'decline_pushup'
+        if 'archer push' in n: return 'archer_pushup'
+        if 'pseudo planche' in n or 'planche lean' in n: return 'planche'
+        if 'handstand push' in n or 'hspu' in n: return 'hspu'
+        if 'push-up' in n or 'pushup' in n or 'push up' in n: return 'pushup'
+        if 'muscle-up' in n or 'muscle up' in n: return 'muscleup'
+        if 'chin-up' in n or 'chin up' in n: return 'chinup'
+        if 'scapular pull' in n or 'active hang' in n: return 'scapular_pull'
+        if 'dead hang' in n or 'hang' in n: return 'dead_hang'
+        if 'australian' in n or 'row' in n: return 'australian_row'
+        if 'pull-up' in n or 'pullup' in n or 'pull up' in n: return 'pullup'
+        if 'dip' in n: return 'dips'
+        if 'pistol' in n or 'shrimp' in n: return 'pistol_squat'
+        if 'bulgarian' in n or 'lunge' in n or 'step-up' in n: return 'lunge'
+        if 'squat' in n or 'wall sit' in n: return 'squat'
+        if 'calf' in n: return 'calf_raise'
+        if 'nordic' in n or 'leg extension' in n: return 'nordic_curl'
+        if 'glute' in n or 'bridge' in n: return 'glute_bridge'
+        if 'front lever' in n or 'fl hold' in n: return 'front_lever'
+        if 'back lever' in n: return 'back_lever'
+        if 'planche' in n: return 'planche'
+        if 'handstand' in n or 'headstand' in n: return 'handstand'
+        if 'crow' in n or 'elbow lever' in n: return 'crow_pose'
+        if 'l-sit' in n or 'lsit' in n or 'v-sit' in n: return 'lsit'
+        if 'dragon flag' in n: return 'dragon_flag'
+        if 'leg raise' in n or 'knee raise' in n or 'toes to bar' in n or 'windshield' in n or 'bicycle' in n or 'climber' in n: return 'hanging_leg_raise'
+        if 'hollow' in n or 'dead bug' in n: return 'hollow_body'
+        if 'side plank' in n: return 'side_plank'
+        if 'plank' in n or 'ab wheel' in n or 'pallof' in n: return 'plank'
+        if 'stretch' in n or 'circle' in n or 'inchworm' in n or 'dislocate' in n or 'swing' in n: return 'mobility'
+        return 'pushup'
+
+    def get_embed_url(self):
+        """Convert standard YouTube links to responsive embed URLs."""
+        url = self.video_url
+        if not url and self.related_skill and self.related_skill.tutorial_video_url:
+            url = self.related_skill.tutorial_video_url
+        if not url:
+            return ""
+        if "watch?v=" in url:
+            video_id = url.split("watch?v=")[1].split("&")[0]
+            return f"https://www.youtube.com/embed/{video_id}"
+        elif "youtu.be/" in url:
+            video_id = url.split("youtu.be/")[1].split("?")[0]
+            return f"https://www.youtube.com/embed/{video_id}"
+        elif "youtube.com/embed/" in url:
+            return url
+        return url
+
+    def get_target_muscles(self):
+        """Return target muscle tags for UI badges."""
+        if self.related_skill and self.related_skill.muscle_groups:
+            return [m.strip() for m in self.related_skill.muscle_groups.split(",") if m.strip()]
+        m_type = self.get_motion_type()
+        muscle_map = {
+            'pushup': ['Chest', 'Triceps', 'Anterior Delts', 'Core'],
+            'diamond_pushup': ['Triceps (Inner Head)', 'Chest', 'Core'],
+            'pike_pushup': ['Shoulders (Delts)', 'Triceps', 'Upper Traps'],
+            'decline_pushup': ['Upper Chest', 'Deltoids', 'Triceps'],
+            'archer_pushup': ['Chest', 'Triceps', 'Core Stability'],
+            'dips': ['Chest', 'Triceps', 'Anterior Deltoids'],
+            'hspu': ['Deltoids', 'Triceps', 'Trapezius', 'Core'],
+            'pullup': ['Lats', 'Biceps', 'Rhomboids', 'Grip'],
+            'chinup': ['Biceps', 'Lats', 'Upper Back'],
+            'australian_row': ['Rhomboids', 'Rear Delts', 'Lats', 'Biceps'],
+            'scapular_pull': ['Lower Traps', 'Rhomboids', 'Forearms'],
+            'dead_hang': ['Forearms / Grip', 'Scapular Stabilizers', 'Lats'],
+            'muscleup': ['Lats', 'Chest', 'Triceps', 'Explosive Pull'],
+            'squat': ['Quadriceps', 'Glutes', 'Hamstrings', 'Calves'],
+            'pistol_squat': ['Quadriceps', 'Glutes', 'Ankle Stabilizers', 'Core'],
+            'lunge': ['Quadriceps', 'Glutes', 'Hamstrings'],
+            'calf_raise': ['Gastrocnemius', 'Soleus', 'Achilles'],
+            'nordic_curl': ['Hamstrings', 'Glutes', 'Calves'],
+            'glute_bridge': ['Glutes', 'Hamstrings', 'Lower Back'],
+            'plank': ['Rectus Abdominis', 'Transverse Abdominis', 'Shoulders'],
+            'side_plank': ['Obliques', 'Quadratus Lumborum', 'Glute Medius'],
+            'lsit': ['Hip Flexors', 'Rectus Abdominis', 'Triceps', 'Shoulders'],
+            'hanging_leg_raise': ['Lower Abs', 'Hip Flexors', 'Grip'],
+            'dragon_flag': ['Entire Abdominal Wall', 'Lats', 'Hip Flexors'],
+            'hollow_body': ['Rectus Abdominis', 'Hip Flexors', 'Spinal Bracers'],
+            'handstand': ['Deltoids', 'Trapezius', 'Wrists', 'Core Balance'],
+            'crow_pose': ['Wrists', 'Anterior Delts', 'Core'],
+            'planche': ['Anterior Deltoids', 'Biceps Tendons', 'Upper Chest', 'Core'],
+            'front_lever': ['Lats', 'Rear Delts', 'Core', 'Teres Major'],
+            'back_lever': ['Biceps Tendons', 'Chest', 'Posterior Chain'],
+            'mobility': ['Joint Mobility', 'Rotator Cuff', 'Flexibility'],
+        }
+        return muscle_map.get(m_type, ['Full Body', 'Core'])
+
+    def get_form_cues(self):
+        """Return 3 golden coaching cues for performing the exercise."""
+        if self.related_skill and self.related_skill.technique_instructions:
+            lines = [line.strip() for line in self.related_skill.technique_instructions.split('\n') if line.strip()]
+            if lines:
+                return lines[:3]
+        m_type = self.get_motion_type()
+        cues_map = {
+            'pushup': [
+                'Keep elbows tucked at a 45-degree angle to protect shoulders.',
+                'Squeeze glutes and core to keep body in a rigid straight plank line.',
+                'Lower until chest touches the floor, then press to full arm lockout.'
+            ],
+            'diamond_pushup': [
+                'Form a diamond with index fingers and thumbs under mid-chest.',
+                'Keep elbows close to your torso during the entire descent.',
+                'Focus on flexing triceps at the peak lockout.'
+            ],
+            'pike_pushup': [
+                'Hike hips high in an inverted V shape with straight legs and back.',
+                'Lower head forward forming a triangle with your hands.',
+                'Press up and push head back through your arms at top.'
+            ],
+            'dips': [
+                'Depress shoulders downwards and lean torso slightly forward.',
+                'Lower until elbows reach at least a 90-degree angle.',
+                'Push up explosively and lock out elbows with full control.'
+            ],
+            'pullup': [
+                'Initiate every pull by depressing scapulae (pull shoulders down).',
+                'Drive elbows down towards hips to fully engage lats.',
+                'Pull chest over the bar and lower down to a complete dead hang.'
+            ],
+            'chinup': [
+                'Supinated grip (palms facing you) shoulder-width apart.',
+                'Lead with chest up toward the bar, driving elbows back.',
+                'Control the negative descent all the way to straight arms.'
+            ],
+            'muscleup': [
+                'Generate explosive vertical chest-to-bar pulling power.',
+                'Aggressively whip head and chest forward over the bar in transition.',
+                'Press out the top straight bar dip to full arm lockout.'
+            ],
+            'squat': [
+                'Keep chest proud and drive knees outward tracking in line with toes.',
+                'Descend until thighs break parallel with the ground.',
+                'Drive firmly through heels and mid-foot to stand tall.'
+            ],
+            'pistol_squat': [
+                'Extend non-working leg forward with toes pointed upward.',
+                'Keep working foot flat on floor without heel lifting.',
+                'Descend smoothly with control, then drive through heel to stand.'
+            ],
+            'plank': [
+                'Tuck pelvis into posterior pelvic tilt (hollow body posture).',
+                'Push ground away through forearms to protract shoulder blades.',
+                'Breathe rhythmically while maintaining constant abdominal tension.'
+            ],
+            'lsit': [
+                'Depress shoulders aggressively into the floor or bars.',
+                'Lock knees completely and point toes with quads flexed.',
+                'Compress abs and pull hips slightly back between hands.'
+            ],
+            'hanging_leg_raise': [
+                'Start from a dead hang with zero swinging momentum.',
+                'Curl pelvis upward toward ribcage as legs rise.',
+                'Control the descent back down; do not let legs drop passively.'
+            ],
+            'handstand': [
+                'Push tall through shoulders (elevation) to lock the shoulder girdle.',
+                'Grip floor with fingertips like claws for micro-balance adjustments.',
+                'Keep ribs tucked and legs squeezed tightly together in a straight line.'
+            ],
+            'front_lever': [
+                'Retract and pull shoulders down toward hips with straight arms.',
+                'Maintain a rigid hollow body without allowing hips to sag or pike.',
+                'Pull down on the bar continuously as if performing a straight-arm pulldown.'
+            ],
+            'planche': [
+                'Lean shoulders forward well ahead of wrists with straight locked arms.',
+                'Protract scapulae maximally into an upper back dome.',
+                'Squeeze glutes, point toes, and clamp core in complete hollow tension.'
+            ],
+        }
+        return cues_map.get(m_type, [
+            'Maintain strict form throughout the full range of motion.',
+            'Control the eccentric (lowering) phase for 2 to 3 seconds.',
+            'Breathe consistently and avoid using swinging momentum.'
+        ])
+
 
 class Program(models.Model):
     """A multi-week training program, e.g. '8-week First Muscle-up' (section 12)."""

@@ -27,7 +27,7 @@ def program_detail(request, pk):
 def workout_player(request, pk):
     """Section 13 -- the actual workout screen: exercise, sets, reps, interactive rest timer."""
     workout = get_object_or_404(Workout, pk=pk)
-    exercises = workout.workout_exercises.select_related("exercise").order_by("order")
+    exercises = workout.workout_exercises.select_related("exercise", "exercise__related_skill").order_by("order")
     context = {"workout": workout, "exercises": exercises}
     return render(request, "training/workout_player.html", context)
 

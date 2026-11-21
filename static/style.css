@@ -1,17 +1,26 @@
-/* Calisfy Athletic Dark Theme & Responsive Styles */
+/* Calisfy Luxury Athletic Dark Theme & Responsive Styles */
 
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800;900&display=swap');
 
 :root {
   --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   --font-display: 'Outfit', system-ui, sans-serif;
+  --accent-color: #e63946;
+  --accent-glow: rgba(230, 57, 70, 0.4);
+  --titan-gold: #f5b800;
+  --titan-gold-glow: rgba(245, 184, 0, 0.35);
+  --cyan-glow: rgba(0, 242, 254, 0.35);
+  --card-bg: #12131c;
+  --border-color: #232534;
 }
 
 body {
   font-family: var(--font-sans);
-  background-color: #0b0b0f;
+  background-color: #07070b;
   color: #f1f1f5;
   overflow-x: hidden;
+  background-image: radial-gradient(circle at 50% 0%, #151624 0%, #07070b 70%);
+  background-attachment: fixed;
 }
 
 h1, h2, h3, .font-display {
@@ -24,60 +33,82 @@ h1, h2, h3, .font-display {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0b0f;
+  background: #07070b;
 }
 ::-webkit-scrollbar-thumb {
-  background: #26262f;
+  background: #232534;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #383844;
+  background: #3b3e52;
 }
 
 /* Input Fields */
 input, textarea, select {
-  background: #101017;
-  border: 1px solid #26262f;
-  border-radius: 0.625rem;
-  padding: 0.625rem 0.875rem;
+  background: #0f1017;
+  border: 1px solid #232534;
+  border-radius: 0.875rem;
+  padding: 0.75rem 1rem;
   color: #fff;
   width: 100%;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 input:focus, textarea:focus, select:focus {
   outline: none;
-  border-color: #e63946;
-  box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.2);
+  border-color: #f5b800;
+  box-shadow: 0 0 0 3px rgba(245, 184, 0, 0.25);
+  background: #141620;
 }
 
 /* Glassmorphism Cards */
 .glass-panel {
-  background: rgba(21, 21, 28, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(18, 19, 28, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Glow effects */
-.glow-accent {
-  box-shadow: 0 0 20px -5px rgba(230, 57, 70, 0.35);
+/* High-tech glow and gradient utilities */
+.glow-titan {
+  box-shadow: 0 0 30px -5px var(--titan-gold-glow);
 }
-.glow-gold {
-  box-shadow: 0 0 20px -5px rgba(212, 175, 55, 0.3);
+.glow-accent {
+  box-shadow: 0 0 25px -4px var(--accent-glow);
+}
+.glow-cyan {
+  box-shadow: 0 0 25px -4px var(--cyan-glow);
+}
+
+.card-shine {
+  position: relative;
+  overflow: hidden;
+}
+.card-shine::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.04), transparent);
+  transform: skewX(-20deg);
+  transition: 0.7s;
+  pointer-events: none;
+}
+.card-shine:hover::after {
+  left: 200%;
 }
 
 /* Mobile drawer transition */
 #mobile-drawer {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 #mobile-backdrop {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.35s ease;
 }
 
 /* Pulse badge animation */
 @keyframes soft-pulse {
   0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.15); opacity: 0.85; }
+  50% { transform: scale(1.12); opacity: 0.85; }
 }
 .animate-soft-pulse {
   animation: soft-pulse 2s infinite ease-in-out;
@@ -85,5 +116,12 @@ input:focus, textarea:focus, select:focus {
 
 /* Touch active micro-animations */
 .tap-effect:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
+}
+
+/* Circular Timer Progress Ring */
+.timer-ring-circle {
+  transition: stroke-dashoffset 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
 }
