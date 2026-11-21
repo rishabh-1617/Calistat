@@ -5,9 +5,11 @@ import django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "calisfy_project.settings")
 django.setup()
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from django.core.management import call_command
 
 from fastapi_app.routers import (
     api_skills,
@@ -18,12 +20,27 @@ from fastapi_app.routers import (
     web
 )
 
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Auto-migrate and auto-seed database on deployment startup if needed
+    try:
+        call_command("migrate", interactive=False)
+        from skills.models import Skill
+        if Skill.objects.count() == 0:
+            call_command("seed_calisfy")
+    except Exception as e:
+        print(f"Deployment database check: {e}")
+    yield
+
+
 app = FastAPI(
     title="Calisfy Calisthenics Platform",
     description="High-performance FastAPI asynchronous backend with REST API and Web Interface for Calisfy.",
     version="2.0.0",
     docs_url="/docs",
-    redoc_url="/redoc"
+    redoc_url="/redoc",
+    lifespan=lifespan
 )
 
 # CORS Middleware
