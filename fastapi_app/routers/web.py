@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse
 from asgiref.sync import sync_to_async
+from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory
 from django.template.loader import render_to_string
 
@@ -18,7 +19,7 @@ rf = RequestFactory()
 def _get_django_request(fastapi_req: Request, user=None):
     req = rf.get(str(fastapi_req.url.path))
     req.session = {}
-    req.user = user or User.objects.first()
+    req.user = user if user is not None else AnonymousUser()
     return req
 
 
@@ -26,25 +27,44 @@ def _get_django_request(fastapi_req: Request, user=None):
 async def web_dashboard(request: Request):
     def _render():
         user = User.objects.first()
-        user_rank, _ = UserRank.objects.get_or_create(user=user)
-        next_rank, xp_needed = next_rank_progress(user_rank)
-        current_skills = (
-            UserSkill.objects.filter(user=user, status="learning").select_related("skill")[:5]
-        )
-        recent_sessions = WorkoutSession.objects.filter(user=user).order_by("-started_at")[:3]
-        community_feed = Post.objects.filter(is_hidden=False).select_related("user")[:5]
-
         d_req = _get_django_request(request, user)
-        context = {
-            "request": d_req,
-            "user": user,
-            "user_rank": user_rank,
-            "next_rank": next_rank,
-            "xp_needed": xp_needed,
-            "current_skills": current_skills,
-            "recent_sessions": recent_sessions,
-            "community_feed": community_feed,
-        }
+
+        if user is None:
+            context = {
+                "request": d_req,
+                "user": None,
+                "user_rank": None,
+                "next_rank": None,
+                "xp_needed": 0,
+                "current_skills": [],
+                "recent_sessions": [],
+                "community_feed": Post.objects.filter(
+                    is_hidden=False
+                ).select_related("user")[:5],
+            }
+        else:
+            user_rank, _ = UserRank.objects.get_or_create(user=user)
+            next_rank, xp_needed = next_rank_progress(user_rank)
+            context = {
+                "request": d_req,
+                "user": user,
+                "user_rank": user_rank,
+                "next_rank": next_rank,
+                "xp_needed": xp_needed,
+                "current_skills": (
+                    UserSkill.objects.filter(user=user, status="learning")
+                    .select_related("skill")[:5]
+                ),
+                "recent_sessions": (
+                    WorkoutSession.objects.filter(user=user)
+                    .order_by("-started_at")[:3]
+                ),
+                "community_feed": (
+                    Post.objects.filter(is_hidden=False)
+                    .select_related("user")[:5]
+                ),
+            }
+
         return render_to_string("core/dashboard.html", context, request=d_req)
 
     html = await sync_to_async(_render)()

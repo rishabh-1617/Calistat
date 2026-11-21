@@ -7,7 +7,7 @@ def calisfy_context(request):
     Global context processor providing data for the persistent Left Section navigation
     and mobile app bars (unread notifications count, rank badge, and profile).
     """
-    if not request.user.is_authenticated:
+    if request.user is None or not request.user.is_authenticated:
         return {
             "unread_notifications_count": 0,
             "nav_user_rank": None,

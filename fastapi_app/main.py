@@ -1,5 +1,6 @@
 import os
 import django
+from asgiref.sync import sync_to_async
 
 # Initialize Django environment once before importing any models
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "calisfy_project.settings")
@@ -25,10 +26,11 @@ from fastapi_app.routers import (
 async def lifespan(app: FastAPI):
     # Auto-migrate and auto-seed database on deployment startup if needed
     try:
-        call_command("migrate", interactive=False)
+        await sync_to_async(call_command)("migrate", interactive=False)
         from skills.models import Skill
-        if Skill.objects.count() == 0:
-            call_command("seed_calisfy")
+        has_skills = await sync_to_async(Skill.objects.count)()
+        if not has_skills:
+            await sync_to_async(call_command)("seed_calisfy")
     except Exception as e:
         print(f"Deployment database check: {e}")
     yield
